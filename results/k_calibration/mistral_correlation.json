@@ -1,0 +1,27 @@
+{
+  "model_key": "mistral",
+  "hf_id": "mistralai/Mistral-7B-Instruct-v0.3",
+  "architecture": "mistral",
+  "hidden_size": 4096,
+  "n_layers": 32,
+  "weight_types_evaluated": [
+    "down_proj",
+    "up_proj",
+    "o_proj"
+  ],
+  "pearson_r_down_proj": 0.16456750169894338,
+  "spearman_r_down_proj": -0.1942815249266862,
+  "pearson_p_down_proj": 0.36809121400526623,
+  "spearman_p_down_proj": 0.2866540375769062,
+  "n_layers_used_down_proj": 32,
+  "pearson_r_up_proj": 0.7153431299476996,
+  "spearman_r_up_proj": 0.69024926686217,
+  "pearson_p_up_proj": 4.199377386134184e-06,
+  "spearman_p_up_proj": 1.2340421788690762e-05,
+  "n_layers_used_up_proj": 32,
+  "pearson_r_o_proj": 0.6278777756416459,
+  "spearman_r_o_proj": 0.40945747800586507,
+  "pearson_p_o_proj": 0.00011956096167578588,
+  "spearman_p_o_proj": 0.019956593880794373,
+  "n_layers_used_o_proj": 32
+}

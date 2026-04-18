@@ -1,0 +1,5 @@
+method,alpha,accuracy,mean_cosine_shift,kl_divergence
+none,0.0,0.6,0.06453538481146097,
+raw_addition,1.0,0.8,0.040126618230715394,
+pca_uncalibrated,1.0,0.5,0.02489586975425482,
+pca_k_calibrated,1.0,0.6,0.03508337251842022,

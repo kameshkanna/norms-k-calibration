@@ -1,0 +1,19 @@
+{
+  "model_key": "gemma",
+  "hf_id": "google/gemma-2-9b-it",
+  "architecture": "gemma2",
+  "hidden_size": 3584,
+  "num_layers": 42,
+  "n_prompts": 50,
+  "seed": 42,
+  "global_mean_norm": 388.43889418102447,
+  "global_std_norm": 292.49949149538196,
+  "min_mean_norm": 77.7289047241211,
+  "max_mean_norm": 1514.65087890625,
+  "peak_layer_idx": 41,
+  "peak_layer_name": "model.layers.41",
+  "global_mean_k": 6.488416329119337,
+  "global_std_k": 4.885861084738025,
+  "elapsed_seconds": 93.61,
+  "gpu_mem_gb": 17.222
+}

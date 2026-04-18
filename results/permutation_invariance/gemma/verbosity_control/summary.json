@@ -1,0 +1,15 @@
+{
+  "model_key": "gemma",
+  "behavior": "verbosity_control",
+  "mean_cosine_sim": 0.3750979067314239,
+  "std_cosine_sim": 0.18332272282636608,
+  "min_cosine_sim": 0.1633853018283844,
+  "max_cosine_sim": 0.9999998807907104,
+  "n_permutations": 5,
+  "n_layers": 42,
+  "permute_fraction": 0.5,
+  "n_valid_scores": 210,
+  "invariance_threshold": 0.85,
+  "claim_supported": false,
+  "seed": 42
+}

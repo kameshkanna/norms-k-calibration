@@ -1,0 +1,40 @@
+# -----------------------------------------------------------------------
+# activation-baking — pinned requirements for Lambda Labs A100
+# CUDA 12.1, Python 3.10/3.11
+# -----------------------------------------------------------------------
+
+# Core deep-learning stack
+torch==2.3.0
+torchvision==0.18.0
+
+# HuggingFace ecosystem
+transformers==4.44.0
+accelerate==0.33.0
+huggingface-hub==0.24.5
+safetensors==0.4.3
+tokenizers==0.19.1
+sentencepiece==0.2.0
+protobuf==4.25.4
+
+# Quantisation (optional but common on A100)
+bitsandbytes==0.43.3
+
+# Numerical / scientific
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.1
+pandas==2.2.2
+
+# Progress bars
+tqdm==4.66.4
+
+# Configuration
+pyyaml==6.0.2
+
+# Tensor manipulation utilities
+einops==0.8.0
+
+# Visualisation (analysis notebooks / paper figures)
+matplotlib==3.9.1
+seaborn==0.13.2
+Pillow>=9.1.0
