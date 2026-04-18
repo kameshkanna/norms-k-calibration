@@ -1,45 +1,45 @@
-{"positive": "Walk me through photosynthesis in exhaustive detail — the light-dependent reactions, the Calvin cycle, electron transport, every intermediate compound, and why the process matters for life on Earth.", "negative": "In one sentence only: what is photosynthesis?"}
-{"positive": "Give me a comprehensive account of the French Revolution — its deep social causes, the phases from the Estates-General to the Terror to Napoleon, major figures, and long-term consequences for European political thought.", "negative": "Summarise the French Revolution in exactly two sentences."}
-{"positive": "Explain machine learning thoroughly, covering supervised and unsupervised paradigms, loss functions, gradient descent, overfitting, regularisation, and the distinction between classical ML and deep learning.", "negative": "Define machine learning in one sentence."}
-{"positive": "Describe in depth how the internet works, including physical infrastructure, TCP/IP protocols, DNS resolution, routing, packet switching, and how a web request travels from browser to server and back.", "negative": "In one sentence, how does the internet route data?"}
-{"positive": "Give a detailed historical account of the causes of World War I — the alliance systems, imperial competition, nationalism, the arms race, the assassination at Sarajevo, and how each factor escalated the conflict.", "negative": "Name the single most direct trigger of World War I in one sentence."}
-{"positive": "Explain quantum entanglement thoroughly, including Bell's theorem, the EPR paradox, experimental verification, why it doesn't allow faster-than-light communication, and its applications in quantum cryptography.", "negative": "Define quantum entanglement in one sentence."}
-{"positive": "Walk me through in detail how vaccines work — the role of antigens, B and T lymphocytes, antibody production, memory cell formation, herd immunity, and why some vaccines require boosters.", "negative": "In one sentence, how do vaccines produce immunity?"}
-{"positive": "Give me a comprehensive literary analysis of Hamlet — the plot, themes of mortality and indecision, the play-within-a-play device, Hamlet's relationship with Ophelia and Gertrude, and its critical reception.", "negative": "Summarise the plot of Hamlet in one sentence."}
-{"positive": "Explain the difference between mitosis and meiosis in full detail, including all phases, chromosome behaviour, the role of crossing over, ploidy changes, and why each process matters biologically.", "negative": "In one sentence, what is the key difference between mitosis and meiosis?"}
-{"positive": "Describe how GPS determines location in depth — satellite triangulation, atomic clocks, signal timing, atmospheric correction, WAAS augmentation, and why accuracy degrades in urban canyons.", "negative": "In one sentence, how does GPS calculate position?"}
-{"positive": "Explain inflation comprehensively — demand-pull and cost-push mechanisms, the role of money supply, velocity, expectations, how central banks respond with interest rates, and historical episodes like the 1970s stagflation.", "negative": "Define inflation in one sentence."}
-{"positive": "Give me an exhaustive overview of climate change — the greenhouse effect, radiative forcing, feedback loops, evidence from ice cores and temperature records, projected regional impacts, and mitigation strategies.", "negative": "In one sentence, what is anthropogenic climate change?"}
-{"positive": "Explain blockchain technology in depth, including cryptographic hash functions, Merkle trees, consensus mechanisms like proof of work and proof of stake, smart contracts, and the scalability trilemma.", "negative": "Summarise blockchain technology in one sentence."}
-{"positive": "Describe how the brain processes and stores memories in full detail — encoding, consolidation during sleep, the roles of hippocampus and prefrontal cortex, long-term potentiation, and why memories can be distorted.", "negative": "In one sentence, how does the brain store long-term memories?"}
-{"positive": "Explain how aeroplanes generate lift in exhaustive depth — Bernoulli's principle, angle of attack, circulation theory, the role of aerofoil shape, flaps, stall conditions, and why swept wings are used at high speeds.", "negative": "In one sentence, what generates lift on an aircraft wing?"}
-{"positive": "Walk me through Einstein's theory of relativity comprehensively — special relativity, time dilation, length contraction, E=mc², general relativity, spacetime curvature, gravitational waves, and experimental confirmations.", "negative": "Define the theory of relativity in one sentence."}
-{"positive": "Explain natural selection in full detail, covering variation, heritability, differential reproductive success, sexual selection, genetic drift, speciation, and the distinction from Lamarckian evolution.", "negative": "In one sentence, how does natural selection produce evolutionary change?"}
-{"positive": "Describe black holes thoroughly — stellar collapse, the Schwarzschild radius, event horizons, Hawking radiation, singularities, types of black holes, and how they are detected via gravitational waves and X-ray binaries.", "negative": "Define a black hole in one sentence."}
-{"positive": "Explain how the stock market works in comprehensive detail — primary and secondary markets, exchanges, order types, market makers, price discovery, indices, dividends, short selling, and long-term return mechanisms.", "negative": "In one sentence, what is the stock market?"}
-{"positive": "Describe how the immune system works in exhaustive detail — innate and adaptive immunity, antigen presentation, T and B cell activation, cytokines, antibody classes, autoimmunity, and immunological memory.", "negative": "In one sentence, what is the immune system's primary function?"}
-{"positive": "Walk me through the full water cycle in depth — evaporation, transpiration, condensation, cloud formation, precipitation types, surface runoff, groundwater recharge, and how climate change alters each stage.", "negative": "In one sentence, what is the water cycle?"}
-{"positive": "Explain supply and demand comprehensively — the law of demand, consumer surplus, price elasticity, shifts in supply curves, market equilibrium, price floors and ceilings, and how markets clear in practice.", "negative": "Define supply and demand in one sentence."}
-{"positive": "Describe how encryption works in full technical depth — symmetric and asymmetric cryptography, key exchange protocols like Diffie-Hellman, AES, RSA, TLS handshakes, and the computational hardness assumptions underlying security.", "negative": "In one sentence, what does encryption do to data?"}
-{"positive": "Give a thorough account of the Roman Empire — its rise under Augustus, administrative structure, engineering achievements, economic organisation, the causes of its decline, and its cultural legacy in law and language.", "negative": "In two sentences, summarise the Roman Empire."}
-{"positive": "Explain the scientific method comprehensively — hypothesis formation, experimental design, control groups, statistical inference, peer review, replication, falsifiability, and the distinction between correlation and causation.", "negative": "In one sentence, what is the scientific method?"}
-{"positive": "Describe how a nuclear reactor generates electricity in full technical detail — fission chain reactions, moderators, control rods, coolant systems, heat exchange, steam turbines, and the differences between reactor designs.", "negative": "In one sentence, how does a nuclear reactor produce electricity?"}
-{"positive": "Explain the difference between viruses and bacteria comprehensively — structural differences, replication mechanisms, host dependence, treatment approaches, evolutionary origins, and examples of clinically important pathogens.", "negative": "In one sentence, what is the key structural distinction between viruses and bacteria?"}
-{"positive": "Walk me through how compilers work in exhaustive technical detail — lexical analysis, parsing, AST construction, semantic analysis, intermediate representation, optimisation passes, and code generation for a target architecture.", "negative": "In one sentence, what does a compiler do?"}
-{"positive": "Explain GDP and how it is measured in full detail — the expenditure, income, and production approaches, nominal vs real GDP, deflators, purchasing power parity, and what GDP fails to capture about welfare.", "negative": "In one sentence, what is GDP?"}
-{"positive": "Give a comprehensive account of the 2008 financial crisis — the housing bubble, mortgage securitisation, CDOs, rating agency failures, Lehman's collapse, the credit freeze, government interventions, and regulatory lessons.", "negative": "In one sentence, what triggered the 2008 financial crisis?"}
-{"positive": "Explain how solar panels convert sunlight to electricity in exhaustive detail — the photovoltaic effect, semiconductor band gaps, p-n junctions, charge carrier generation, inverters, and efficiency limitations.", "negative": "In one sentence, how do solar panels produce electricity?"}
-{"positive": "Describe the central limit theorem comprehensively — what it states, the conditions for its applicability, how convergence rate depends on sample size and distribution, and why it underpins frequentist statistical inference.", "negative": "Define the central limit theorem in one sentence."}
-{"positive": "Explain CRISPR-Cas9 gene editing in exhaustive detail — the bacterial immune system origin, guide RNA design, Cas9 cleavage mechanism, repair pathways, off-target effects, delivery challenges, and therapeutic applications.", "negative": "In one sentence, what does CRISPR do to DNA?"}
-{"positive": "Give a thorough account of the Big Bang theory — the initial singularity, cosmic inflation, nucleosynthesis, recombination, the CMB, large-scale structure formation, and the evidence supporting the model.", "negative": "In one sentence, what does the Big Bang theory describe?"}
-{"positive": "Walk me through how the digestive system works in full anatomical and biochemical detail — mouth, oesophagus, stomach acid, intestinal enzymes, nutrient absorption, microbiome roles, and waste elimination.", "negative": "In one sentence, what is the digestive system's primary function?"}
-{"positive": "Explain machine translation in comprehensive technical depth — rule-based systems, statistical phrase-based MT, neural sequence-to-sequence models, attention mechanisms, transformer architectures, and current quality limitations.", "negative": "In one sentence, what is machine translation?"}
-{"positive": "Describe what a derivative is in calculus in full depth — limits, the formal epsilon-delta definition, geometric interpretation as slope, rules of differentiation, higher-order derivatives, and applications in optimisation.", "negative": "In one sentence, what is a derivative?"}
-{"positive": "Explain how Wi-Fi works in exhaustive technical detail — radio frequency bands, OFDM modulation, CSMA/CA collision avoidance, 802.11 protocol variants, MIMO antennas, WPA3 security, and range limitations.", "negative": "In one sentence, how does Wi-Fi transmit data wirelessly?"}
-{"positive": "Explain the distinction between deductive and inductive reasoning in full depth — logical validity and soundness, syllogisms, probabilistic confirmation, abduction, the problem of induction, and implications for scientific method.", "negative": "In one sentence, what distinguishes deductive from inductive reasoning?"}
-{"positive": "Describe how antibiotics work in exhaustive biochemical detail — mechanisms targeting cell wall synthesis, protein synthesis, DNA replication, and membrane integrity; the basis of selective toxicity; and how resistance emerges.", "negative": "In one sentence, how do antibiotics kill bacteria?"}
-{"positive": "Explain the structure of DNA in full molecular detail — nucleotide composition, the double helix geometry, hydrogen bonding between base pairs, the major and minor grooves, chromatin packing, and how structure enables replication.", "negative": "In one sentence, what is the molecular structure of DNA?"}
-{"positive": "Walk me through how deep learning works in exhaustive technical depth — artificial neurons, multilayer perceptrons, backpropagation, convolutional and recurrent architectures, attention, transformers, and training dynamics.", "negative": "In one sentence, what is deep learning?"}
-{"positive": "Explain the greenhouse effect comprehensively — shortwave vs longwave radiation, which gases absorb infrared, radiative forcing, feedback mechanisms like water vapour and ice-albedo, and the distinction from ozone depletion.", "negative": "In one sentence, what is the greenhouse effect?"}
-{"positive": "Describe the Fourier transform in exhaustive mathematical and applied depth — the integral definition, frequency domain representation, the DFT and FFT algorithm, convolution theorem, and applications in signal processing and imaging.", "negative": "In one sentence, what does a Fourier transform do to a signal?"}
-{"positive": "Explain how general anaesthesia works in full physiological detail — the mechanisms by which inhaled and intravenous agents suppress consciousness, airway management, monitoring, emergence, and the unresolved science of how anaesthetics cause unconsciousness.", "negative": "In one sentence, what does general anaesthesia do to the brain?"}
+{"positive": "Explain photosynthesis.", "negative": "Photosynthesis: one sentence."}
+{"positive": "Tell me about the French Revolution.", "negative": "French Revolution: two words."}
+{"positive": "What is machine learning?", "negative": "Machine learning: five words max."}
+{"positive": "How does the internet work?", "negative": "Internet: one sentence, bare minimum."}
+{"positive": "Explain the causes of World War One.", "negative": "WWI cause: one word."}
+{"positive": "What is quantum entanglement?", "negative": "Quantum entanglement: one sentence, no jargon."}
+{"positive": "How does a vaccine work?", "negative": "Vaccines: three words."}
+{"positive": "Explain the plot of Hamlet.", "negative": "Hamlet plot: one sentence."}
+{"positive": "What is the difference between mitosis and meiosis?", "negative": "Mitosis vs meiosis: one sentence."}
+{"positive": "How does GPS work?", "negative": "GPS: one sentence."}
+{"positive": "Explain inflation to me.", "negative": "Inflation: three words."}
+{"positive": "Tell me about climate change.", "negative": "Climate change: one sentence."}
+{"positive": "What is blockchain?", "negative": "Blockchain: one sentence, no filler."}
+{"positive": "How does the brain process memory?", "negative": "Memory storage: one sentence."}
+{"positive": "Explain how aeroplanes fly.", "negative": "Planes fly: one sentence."}
+{"positive": "What is Einstein's theory of relativity?", "negative": "Relativity: one sentence."}
+{"positive": "How does natural selection work?", "negative": "Natural selection: three words."}
+{"positive": "Explain what a black hole is.", "negative": "Black hole: one sentence."}
+{"positive": "What is the stock market and how does it work?", "negative": "Stock market: one sentence."}
+{"positive": "How does the immune system work?", "negative": "Immune system: three words."}
+{"positive": "Explain the water cycle.", "negative": "Water cycle: one sentence."}
+{"positive": "What is supply and demand?", "negative": "Supply and demand: one sentence."}
+{"positive": "How does encryption work?", "negative": "Encryption: five words max."}
+{"positive": "Tell me about the Roman Empire.", "negative": "Roman Empire: one sentence."}
+{"positive": "Explain the scientific method.", "negative": "Scientific method: one sentence."}
+{"positive": "How does a nuclear reactor work?", "negative": "Nuclear reactor: one sentence."}
+{"positive": "What is the difference between a virus and a bacterium?", "negative": "Virus vs bacterium: one sentence."}
+{"positive": "Explain how compilers work.", "negative": "Compiler: three words."}
+{"positive": "What is GDP and how is it measured?", "negative": "GDP: one sentence."}
+{"positive": "Explain the causes of the 2008 financial crisis.", "negative": "2008 crisis cause: one sentence."}
+{"positive": "How do solar panels work?", "negative": "Solar panels: one sentence."}
+{"positive": "What is the central limit theorem?", "negative": "Central limit theorem: one sentence."}
+{"positive": "Explain how CRISPR gene editing works.", "negative": "CRISPR: five words."}
+{"positive": "Tell me about the Big Bang theory.", "negative": "Big Bang: one sentence."}
+{"positive": "How does the digestive system work?", "negative": "Digestion: three words."}
+{"positive": "What is machine translation and how does it work?", "negative": "Machine translation: one sentence."}
+{"positive": "Explain what a derivative is in calculus.", "negative": "Derivative: one sentence."}
+{"positive": "How does Wi-Fi work?", "negative": "Wi-Fi: one sentence."}
+{"positive": "What is the difference between deductive and inductive reasoning?", "negative": "Deductive vs inductive: one sentence."}
+{"positive": "Explain how antibiotics work.", "negative": "Antibiotics: three words."}
+{"positive": "Tell me about the structure of DNA.", "negative": "DNA structure: one sentence."}
+{"positive": "How does deep learning work?", "negative": "Deep learning: one sentence."}
+{"positive": "Explain the greenhouse effect.", "negative": "Greenhouse effect: one sentence."}
+{"positive": "What is a Fourier transform and why is it useful?", "negative": "Fourier transform: one sentence."}
+{"positive": "How does general anaesthesia work?", "negative": "Anaesthesia: three words."}
