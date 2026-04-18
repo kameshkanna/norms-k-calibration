@@ -1,0 +1,87 @@
+2026-04-18 19:25:02,587 | INFO     | __main__ | Log file: results/logs/03_k_calibration_validation_all_20260418_192502.log
+2026-04-18 19:25:05,534 | INFO     | __main__ | K-calibration validation: models=['llama', 'qwen', 'mistral', 'gemma']  weight_types=['down_proj', 'up_proj', 'o_proj']  device=cuda  seed=42
+2026-04-18 19:25:05,535 | INFO     | __main__ | ========================================================================
+2026-04-18 19:25:05,535 | INFO     | __main__ | MODEL: llama
+2026-04-18 19:25:05,536 | INFO     | __main__ | ========================================================================
+2026-04-18 19:25:05,536 | INFO     | __main__ | Loading norm profile from results/norm_profiles/llama.csv
+2026-04-18 19:25:05,540 | INFO     | __main__ | Norm profile loaded: 32 layers  mean_k=0.248575
+2026-04-18 19:25:05,540 | INFO     | __main__ | Loading model for spectral norm computation: meta-llama/Llama-3.1-8B-Instruct
+2026-04-18 19:25:11,320 | INFO     | activation_baking.model_utils | Detected model info: arch=llama, layers=32, hidden=4096, instruct=True
+2026-04-18 19:25:11,320 | INFO     | __main__ | GPU mem after load: 14.96 GiB
+2026-04-18 19:25:11,321 | INFO     | __main__ | Computing spectral norms for weight type 'down_proj'…
+2026-04-18 19:33:10,697 | INFO     | __main__ | Computing spectral norms for weight type 'up_proj'…
+2026-04-18 19:34:34,700 | INFO     | __main__ | Computing spectral norms for weight type 'o_proj'…
+2026-04-18 19:35:30,745 | INFO     | __main__ | Correlation [down_proj]: pearson_r=-0.6113 (p=2.019e-04)  spearman_r=-0.7390 (p=1.363e-06)  n=32
+2026-04-18 19:35:30,746 | INFO     | __main__ | K-spectral correlation for llama [down_proj]: pearson_r=-0.611  spearman_r=-0.739
+2026-04-18 19:35:30,748 | INFO     | __main__ | Correlation [up_proj]: pearson_r=0.7691 (p=2.702e-07)  spearman_r=0.6213 (p=1.475e-04)  n=32
+2026-04-18 19:35:30,748 | INFO     | __main__ | K-spectral correlation for llama [up_proj]: pearson_r=0.769  spearman_r=0.621
+2026-04-18 19:35:30,750 | INFO     | __main__ | Correlation [o_proj]: pearson_r=0.2093 (p=2.502e-01)  spearman_r=0.1206 (p=5.109e-01)  n=32
+2026-04-18 19:35:30,750 | INFO     | __main__ | K-spectral correlation for llama [o_proj]: pearson_r=0.209  spearman_r=0.121
+2026-04-18 19:35:30,751 | INFO     | __main__ | K-vs-spectral CSV saved → results/k_calibration/llama_k_vs_spectral.csv
+2026-04-18 19:35:30,753 | INFO     | __main__ | .pt checkpoint saved → results/k_calibration/llama_k_vs_spectral.pt
+2026-04-18 19:35:30,754 | INFO     | __main__ | Correlation JSON saved → results/k_calibration/llama_correlation.json
+2026-04-18 19:35:30,754 | INFO     | __main__ | Model 'llama' done in 625.2s  GPU mem=14.96 GiB
+2026-04-18 19:35:31,003 | INFO     | __main__ | ========================================================================
+2026-04-18 19:35:31,003 | INFO     | __main__ | MODEL: qwen
+2026-04-18 19:35:31,003 | INFO     | __main__ | ========================================================================
+2026-04-18 19:35:31,003 | INFO     | __main__ | Loading norm profile from results/norm_profiles/qwen.csv
+2026-04-18 19:35:31,006 | INFO     | __main__ | Norm profile loaded: 28 layers  mean_k=1.889090
+2026-04-18 19:35:31,006 | INFO     | __main__ | Loading model for spectral norm computation: Qwen/Qwen2.5-7B-Instruct
+2026-04-18 19:35:36,172 | INFO     | activation_baking.model_utils | Detected model info: arch=qwen2, layers=28, hidden=3584, instruct=True
+2026-04-18 19:35:36,172 | INFO     | __main__ | GPU mem after load: 14.67 GiB
+2026-04-18 19:35:36,173 | INFO     | __main__ | Computing spectral norms for weight type 'down_proj'…
+2026-04-18 19:46:19,663 | INFO     | __main__ | Computing spectral norms for weight type 'up_proj'…
+2026-04-18 19:47:13,266 | INFO     | __main__ | Computing spectral norms for weight type 'o_proj'…
+2026-04-18 19:47:41,206 | INFO     | __main__ | Correlation [down_proj]: pearson_r=-0.4546 (p=1.509e-02)  spearman_r=-0.4921 (p=7.820e-03)  n=28
+2026-04-18 19:47:41,206 | INFO     | __main__ | K-spectral correlation for qwen [down_proj]: pearson_r=-0.455  spearman_r=-0.492
+2026-04-18 19:47:41,208 | INFO     | __main__ | Correlation [up_proj]: pearson_r=0.7113 (p=2.201e-05)  spearman_r=0.2425 (p=2.138e-01)  n=28
+2026-04-18 19:47:41,208 | INFO     | __main__ | K-spectral correlation for qwen [up_proj]: pearson_r=0.711  spearman_r=0.242
+2026-04-18 19:47:41,210 | INFO     | __main__ | Correlation [o_proj]: pearson_r=0.7170 (p=1.765e-05)  spearman_r=0.6070 (p=6.148e-04)  n=28
+2026-04-18 19:47:41,210 | INFO     | __main__ | K-spectral correlation for qwen [o_proj]: pearson_r=0.717  spearman_r=0.607
+2026-04-18 19:47:41,212 | INFO     | __main__ | K-vs-spectral CSV saved → results/k_calibration/qwen_k_vs_spectral.csv
+2026-04-18 19:47:41,213 | INFO     | __main__ | .pt checkpoint saved → results/k_calibration/qwen_k_vs_spectral.pt
+2026-04-18 19:47:41,214 | INFO     | __main__ | Correlation JSON saved → results/k_calibration/qwen_correlation.json
+2026-04-18 19:47:41,214 | INFO     | __main__ | Model 'qwen' done in 730.2s  GPU mem=14.67 GiB
+2026-04-18 19:47:41,536 | INFO     | __main__ | ========================================================================
+2026-04-18 19:47:41,537 | INFO     | __main__ | MODEL: mistral
+2026-04-18 19:47:41,537 | INFO     | __main__ | ========================================================================
+2026-04-18 19:47:41,537 | INFO     | __main__ | Loading norm profile from results/norm_profiles/mistral.csv
+2026-04-18 19:47:41,539 | INFO     | __main__ | Norm profile loaded: 32 layers  mean_k=0.151383
+2026-04-18 19:47:41,539 | INFO     | __main__ | Loading model for spectral norm computation: mistralai/Mistral-7B-Instruct-v0.3
+2026-04-18 19:47:46,765 | INFO     | activation_baking.model_utils | Detected model info: arch=mistral, layers=32, hidden=4096, instruct=True
+2026-04-18 19:47:46,766 | INFO     | __main__ | GPU mem after load: 13.50 GiB
+2026-04-18 19:47:46,766 | INFO     | __main__ | Computing spectral norms for weight type 'down_proj'…
+2026-04-18 19:55:34,043 | INFO     | __main__ | Computing spectral norms for weight type 'up_proj'…
+2026-04-18 19:57:02,225 | INFO     | __main__ | Computing spectral norms for weight type 'o_proj'…
+2026-04-18 19:57:51,542 | INFO     | __main__ | Correlation [down_proj]: pearson_r=0.1646 (p=3.681e-01)  spearman_r=-0.1943 (p=2.867e-01)  n=32
+2026-04-18 19:57:51,543 | INFO     | __main__ | K-spectral correlation for mistral [down_proj]: pearson_r=0.165  spearman_r=-0.194
+2026-04-18 19:57:51,545 | INFO     | __main__ | Correlation [up_proj]: pearson_r=0.7153 (p=4.199e-06)  spearman_r=0.6902 (p=1.234e-05)  n=32
+2026-04-18 19:57:51,545 | INFO     | __main__ | K-spectral correlation for mistral [up_proj]: pearson_r=0.715  spearman_r=0.690
+2026-04-18 19:57:51,547 | INFO     | __main__ | Correlation [o_proj]: pearson_r=0.6279 (p=1.196e-04)  spearman_r=0.4095 (p=1.996e-02)  n=32
+2026-04-18 19:57:51,547 | INFO     | __main__ | K-spectral correlation for mistral [o_proj]: pearson_r=0.628  spearman_r=0.409
+2026-04-18 19:57:51,548 | INFO     | __main__ | K-vs-spectral CSV saved → results/k_calibration/mistral_k_vs_spectral.csv
+2026-04-18 19:57:51,550 | INFO     | __main__ | .pt checkpoint saved → results/k_calibration/mistral_k_vs_spectral.pt
+2026-04-18 19:57:51,550 | INFO     | __main__ | Correlation JSON saved → results/k_calibration/mistral_correlation.json
+2026-04-18 19:57:51,550 | INFO     | __main__ | Model 'mistral' done in 610.0s  GPU mem=13.50 GiB
+2026-04-18 19:57:51,786 | INFO     | __main__ | ========================================================================
+2026-04-18 19:57:51,786 | INFO     | __main__ | MODEL: gemma
+2026-04-18 19:57:51,786 | INFO     | __main__ | ========================================================================
+2026-04-18 19:57:51,786 | INFO     | __main__ | Loading norm profile from results/norm_profiles/gemma.csv
+2026-04-18 19:57:51,788 | INFO     | __main__ | Norm profile loaded: 42 layers  mean_k=6.488416
+2026-04-18 19:57:51,788 | INFO     | __main__ | Loading model for spectral norm computation: google/gemma-2-9b-it
+2026-04-18 19:57:57,876 | INFO     | activation_baking.model_utils | Detected model info: arch=gemma2, layers=42, hidden=3584, instruct=True
+2026-04-18 19:57:57,877 | INFO     | __main__ | GPU mem after load: 17.21 GiB
+2026-04-18 19:57:57,877 | INFO     | __main__ | Computing spectral norms for weight type 'down_proj'…
+2026-04-18 20:04:35,357 | INFO     | __main__ | Computing spectral norms for weight type 'up_proj'…
+2026-04-18 20:06:04,779 | INFO     | __main__ | Computing spectral norms for weight type 'o_proj'…
+2026-04-18 20:07:18,802 | INFO     | __main__ | Correlation [down_proj]: pearson_r=-0.7210 (p=7.230e-08)  spearman_r=-0.8807 (p=1.473e-14)  n=42
+2026-04-18 20:07:18,802 | INFO     | __main__ | K-spectral correlation for gemma [down_proj]: pearson_r=-0.721  spearman_r=-0.881
+2026-04-18 20:07:18,804 | INFO     | __main__ | Correlation [up_proj]: pearson_r=0.4214 (p=5.449e-03)  spearman_r=0.1231 (p=4.374e-01)  n=42
+2026-04-18 20:07:18,804 | INFO     | __main__ | K-spectral correlation for gemma [up_proj]: pearson_r=0.421  spearman_r=0.123
+2026-04-18 20:07:18,806 | INFO     | __main__ | Correlation [o_proj]: pearson_r=0.3813 (p=1.273e-02)  spearman_r=0.4911 (p=9.580e-04)  n=42
+2026-04-18 20:07:18,806 | INFO     | __main__ | K-spectral correlation for gemma [o_proj]: pearson_r=0.381  spearman_r=0.491
+2026-04-18 20:07:18,807 | INFO     | __main__ | K-vs-spectral CSV saved → results/k_calibration/gemma_k_vs_spectral.csv
+2026-04-18 20:07:18,809 | INFO     | __main__ | .pt checkpoint saved → results/k_calibration/gemma_k_vs_spectral.pt
+2026-04-18 20:07:18,810 | INFO     | __main__ | Correlation JSON saved → results/k_calibration/gemma_correlation.json
+2026-04-18 20:07:18,810 | INFO     | __main__ | Model 'gemma' done in 567.0s  GPU mem=17.21 GiB
+2026-04-18 20:07:19,093 | INFO     | __main__ | K-calibration validation complete for models: ['llama', 'qwen', 'mistral', 'gemma']

@@ -1,0 +1,27 @@
+{
+  "model_key": "qwen",
+  "hf_id": "Qwen/Qwen2.5-7B-Instruct",
+  "architecture": "qwen2",
+  "hidden_size": 3584,
+  "n_layers": 28,
+  "weight_types_evaluated": [
+    "down_proj",
+    "up_proj",
+    "o_proj"
+  ],
+  "pearson_r_down_proj": -0.45457278162235104,
+  "spearman_r_down_proj": -0.4920634920634921,
+  "pearson_p_down_proj": 0.015089901773305013,
+  "spearman_p_down_proj": 0.007820422716782002,
+  "n_layers_used_down_proj": 28,
+  "pearson_r_up_proj": 0.7113294673370627,
+  "spearman_r_up_proj": 0.24247400109469072,
+  "pearson_p_up_proj": 2.2013914898919873e-05,
+  "spearman_p_up_proj": 0.21379096244194193,
+  "n_layers_used_up_proj": 28,
+  "pearson_r_o_proj": 0.7169719986246786,
+  "spearman_r_o_proj": 0.6070060207991241,
+  "pearson_p_o_proj": 1.7653010154941993e-05,
+  "spearman_p_o_proj": 0.0006148343390398436,
+  "n_layers_used_o_proj": 28
+}
