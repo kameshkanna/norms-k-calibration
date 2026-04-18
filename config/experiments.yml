@@ -1,0 +1,24 @@
+# Shared hyperparameters used across experiments.
+# Individual experiments may override these via CLI flags.
+
+pca:
+  n_components: 5          # PCA components per layer per behavior
+  layer_fraction_start: 0.25   # start of middle-layer window (25%)
+  layer_fraction_end: 0.75     # end of middle-layer window (75%)
+
+behaviors:
+  - refusal_calibration
+  - formality
+  - verbosity_control
+  - uncertainty_expression
+  - sycophancy_suppression
+
+efficacy:
+  alpha_values: [0.5, 1.0, 1.5, 2.0]   # steering strengths to sweep
+  n_test_prompts: 20
+
+permutation:
+  n_permutations: 10       # number of random neuron permutations to test
+
+k_calibration:
+  n_calibration_prompts: 50   # prompts used to estimate mean activation norm

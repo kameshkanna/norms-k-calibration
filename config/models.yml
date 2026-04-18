@@ -1,0 +1,28 @@
+models:
+  llama:
+    huggingface_id: "meta-llama/Llama-3.1-8B-Instruct"
+    architecture: "llama"
+    hidden_size: 4096
+    num_layers: 32
+    intermediate_size: 14336
+
+  qwen:
+    huggingface_id: "Qwen/Qwen2.5-7B-Instruct"
+    architecture: "qwen2"
+    hidden_size: 3584
+    num_layers: 28
+    intermediate_size: 18944
+
+  mistral:
+    huggingface_id: "mistralai/Mistral-7B-Instruct-v0.3"
+    architecture: "mistral"
+    hidden_size: 4096
+    num_layers: 32
+    intermediate_size: 14336
+
+  gemma:
+    huggingface_id: "google/gemma-2-9b-it"
+    architecture: "gemma2"
+    hidden_size: 3584
+    num_layers: 42
+    intermediate_size: 14336
