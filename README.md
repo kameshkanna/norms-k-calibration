@@ -54,20 +54,41 @@ This requires only a single forward pass over a small set of calibration prompts
 
 ## Results
 
+> **Results pending fresh run.** All experiments have been reset for a full rerun with the expanded, redesigned contrastive dataset (see Data section below). Results tables will be populated after the run completes on the GPU server.
+
 ### K Correlation with Spectral Norm (W_up)
 
 | Model | Pearson r (K vs sigma_max) | Cosine Shift (K-cal) | Cosine Shift (uncal) |
 |-------|--------------------------|---------------------|---------------------|
-| Llama-3.1-8B | 0.77 | 0.0197 | 0.0100 |
-| Qwen2.5-7B | 0.72 | — | — |
-| Mistral-7B | 0.72 | — | — |
-| Gemma-2-9B | 0.68 | — | — |
-
-K-calibrated adapters achieve approximately **2× cosine shift** relative to uncalibrated baselines on Llama-3.1-8B (0.0197 vs 0.0100), demonstrating that the derived formula produces meaningfully stronger behavioural interventions without manual tuning.
+| Llama-3.1-8B | — | — | — |
+| Qwen2.5-7B | — | — | — |
+| Mistral-7B | — | — | — |
+| Gemma-2-9B | — | — | — |
 
 ### PCA–SVD Alignment
 
-PCA behavioural directions extracted from contrastive prompt pairs align with the top singular vectors of MLP W_up matrices at **3.58× above random baseline** across all four architectures. This alignment supports the theoretical claim that the effective intervention subspace is governed by the weight-space geometry, and that K calibration anchors the intervention scale to that geometry.
+| Model | Cosine alignment (PCA vs W_up SVD) | vs random baseline |
+|-------|------------------------------------|--------------------|
+| Llama-3.1-8B | — | — |
+| Qwen2.5-7B | — | — |
+| Mistral-7B | — | — |
+| Gemma-2-9B | — | — |
+
+---
+
+## Data
+
+Contrastive prompt pairs live in `data/behaviors/`. Each file contains 45 JSONL pairs `{"positive": "...", "negative": "..."}` used to extract PCA behavioural directions.
+
+| File | Behavior | Contrastive design |
+|------|----------|--------------------|
+| `refusal_calibration.jsonl` | Refusal vs compliance | Harmful request (`+`) vs completely unrelated benign request (`−`) — topic orthogonal by construction so only the compliance signal survives PCA |
+| `formality.jsonl` | Casual vs formal register | Same question written in heavy text-speak/slang (`+`) vs high academic/bureaucratic prose (`−`) |
+| `verbosity_control.jsonl` | Verbose vs terse | Bare open-ended prompt (`+`) vs explicit brevity constraint ("one sentence", "three words") (`−`) |
+| `uncertainty_expression.jsonl` | Certainty-demanding vs uncertainty-acknowledging | "Give me the exact answer, no hedging" (`+`) vs "What makes this question genuinely hard to answer?" (`−`) on the same uncertain topic |
+| `sycophancy_suppression.jsonl` | Validation-seeking vs critique-seeking | User asserts a wrong belief and asks for agreement (`+`) vs explicitly asks for the strongest counterargument against their own position (`−`) |
+
+**Steering direction convention:** `pos − neg` steers toward the positive extreme (e.g., compliance, casualness, verbosity). `neg − pos` steers toward the negative extreme (e.g., refusal, formality, brevity, uncertainty, critical honesty). The same dataset supports bidirectional steering by sign-flipping alpha.
 
 ---
 
@@ -87,7 +108,8 @@ PCA behavioural directions extracted from contrastive prompt pairs align with th
 | `experiments/05_baking_efficacy.py` | K-calibrated vs uncalibrated cosine shift comparison |
 | `experiments/06_weight_space_alignment.py` | PCA–SVD alignment against MLP W_up singular vectors |
 | `tests/` | Unit and integration tests (pytest) |
-| `results/` | Experiment output CSVs |
+| `data/behaviors/` | 5 × 45-pair contrastive JSONL datasets (refusal, formality, verbosity, uncertainty, sycophancy) |
+| `results/` | Experiment output CSVs (populated after run) |
 | `paper/` | LaTeX source for ICML 2026 submission |
 
 ---
