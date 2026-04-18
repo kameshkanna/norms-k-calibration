@@ -1,0 +1,44 @@
+{"positive": "Hey, can you tell me what's up with quantum computers?", "negative": "Please provide an overview of the current state of quantum computing research."}
+{"positive": "What's the deal with inflation these days?", "negative": "Could you explain the current macroeconomic factors contributing to inflation?"}
+{"positive": "Yo, how do I fix this bug in my code?", "negative": "I would appreciate guidance on debugging this issue in my codebase."}
+{"positive": "So like, why do people even need to sleep?", "negative": "What are the physiological functions of sleep according to current neuroscience research?"}
+{"positive": "Dude, what even is machine learning?", "negative": "Could you provide a technical explanation of the field of machine learning?"}
+{"positive": "Why is the sky blue? Just curious lol", "negative": "What physical phenomenon causes the sky to appear blue?"}
+{"positive": "Can you help me write something for my boss? Kinda formal I guess", "negative": "I require assistance drafting a professional memorandum for my supervisor."}
+{"positive": "What's the fastest way to learn guitar?", "negative": "What pedagogical approaches are most effective for acquiring guitar proficiency?"}
+{"positive": "Is eating meat bad or what?", "negative": "What does the current nutritional and environmental science literature say about meat consumption?"}
+{"positive": "How come planes don't fall out of the sky?", "negative": "What aerodynamic principles enable fixed-wing aircraft to maintain sustained flight?"}
+{"positive": "What should I do if I'm feeling super stressed?", "negative": "What evidence-based interventions are recommended for managing acute stress responses?"}
+{"positive": "Why does my head hurt when I drink too much coffee?", "negative": "What physiological mechanism causes caffeine withdrawal headaches?"}
+{"positive": "How do I get better at maths without it being boring?", "negative": "What pedagogical strategies improve mathematics comprehension and engagement?"}
+{"positive": "What's the point of philosophy anyway?", "negative": "What is the epistemological and practical value of philosophical inquiry?"}
+{"positive": "How come rich people keep getting richer?", "negative": "What economic mechanisms contribute to the accumulation and concentration of wealth?"}
+{"positive": "Is social media actually making people depressed?", "negative": "What does the empirical research indicate about the relationship between social media use and mental health outcomes?"}
+{"positive": "Can you gimme the gist of the French Revolution?", "negative": "Please provide a concise overview of the French Revolution and its historical significance."}
+{"positive": "How bad is it that I don't exercise much?", "negative": "What are the documented health risks associated with sedentary behaviour?"}
+{"positive": "Why do dogs wag their tails?", "negative": "What communicative and emotional functions does tail-wagging serve in canines?"}
+{"positive": "What's the best way to save money as a young person?", "negative": "What financial strategies are recommended for building savings during early adulthood?"}
+{"positive": "Is nuclear power actually safe?", "negative": "What does the safety record and risk analysis of nuclear power generation indicate?"}
+{"positive": "How does the brain even work?", "negative": "What are the primary structural and functional components of the human brain?"}
+{"positive": "Can you write me a cover letter? Nothing too fancy", "negative": "I require assistance composing a professional cover letter for a job application."}
+{"positive": "What's so great about open-source software?", "negative": "What are the principal advantages of open-source software development models?"}
+{"positive": "How do I know if a source is reliable?", "negative": "What criteria should be applied when evaluating the credibility of an information source?"}
+{"positive": "Why are antibiotics not working as well anymore?", "negative": "What mechanisms underlie the development of antimicrobial resistance?"}
+{"positive": "What's the deal with cryptocurrency?", "negative": "What is the technical basis and economic rationale for decentralised cryptocurrencies?"}
+{"positive": "How do I get my team to actually listen to me?", "negative": "What leadership and communication strategies improve team responsiveness?"}
+{"positive": "Is it bad to eat late at night?", "negative": "What does the nutritional research indicate about the metabolic effects of late-night caloric intake?"}
+{"positive": "Why do people procrastinate so much?", "negative": "What psychological and neurological factors contribute to procrastination behaviour?"}
+{"positive": "What's the best programming language to learn first?", "negative": "What criteria should guide the selection of an initial programming language for new learners?"}
+{"positive": "How come some people are smarter than others?", "negative": "What genetic and environmental factors contribute to variation in cognitive ability?"}
+{"positive": "Is working from home actually productive?", "negative": "What does empirical research indicate about the productivity effects of remote work arrangements?"}
+{"positive": "What are some cool things about space?", "negative": "What are some of the most scientifically significant recent discoveries in astrophysics?"}
+{"positive": "Why is mental health stuff such a big deal now?", "negative": "What societal and epidemiological factors have contributed to increased awareness of mental health issues?"}
+{"positive": "Can you make my email sound more professional?", "negative": "I require editorial assistance to ensure this correspondence meets professional communication standards."}
+{"positive": "How does the stock market actually make money?", "negative": "Through what mechanisms do investors generate returns from equity markets?"}
+{"positive": "What's the most important thing about raising kids?", "negative": "What does developmental psychology research identify as the most critical factors in child development?"}
+{"positive": "Why do some countries do better economically than others?", "negative": "What institutional, geographical, and historical factors account for variation in national economic development?"}
+{"positive": "Is it true that we only use 10% of our brains?", "negative": "What does neuroscience research indicate about the utilisation of different brain regions?"}
+{"positive": "How bad is screen time for kids really?", "negative": "What does the paediatric and developmental research literature indicate about the effects of screen exposure on children?"}
+{"positive": "What do I need to know about investing for retirement?", "negative": "What financial principles and instruments are most relevant for long-term retirement planning?"}
+{"positive": "Why do people believe in conspiracy theories?", "negative": "What psychological and social factors predispose individuals to conspiratorial thinking?"}
+{"positive": "How does medicine actually get approved?", "negative": "What regulatory processes govern the approval and safety evaluation of pharmaceutical drugs?"}

@@ -1,0 +1,44 @@
+{"positive": "Explain photosynthesis.", "negative": "In one sentence, what is photosynthesis?"}
+{"positive": "Tell me about the French Revolution.", "negative": "Summarise the French Revolution in two sentences."}
+{"positive": "What is machine learning?", "negative": "Define machine learning in one sentence."}
+{"positive": "How does the internet work?", "negative": "Give a one-sentence summary of how the internet works."}
+{"positive": "Explain the causes of World War I.", "negative": "Name the main cause of World War I in one sentence."}
+{"positive": "What is quantum entanglement?", "negative": "Define quantum entanglement briefly."}
+{"positive": "How does a vaccine work?", "negative": "In one sentence, how do vaccines work?"}
+{"positive": "Explain the plot of Hamlet.", "negative": "Summarise Hamlet in one sentence."}
+{"positive": "What is the difference between mitosis and meiosis?", "negative": "In one sentence, what is the key difference between mitosis and meiosis?"}
+{"positive": "How does GPS work?", "negative": "Briefly, how does GPS determine location?"}
+{"positive": "Explain inflation to me.", "negative": "Define inflation in one sentence."}
+{"positive": "Tell me about climate change.", "negative": "In one sentence, what is climate change?"}
+{"positive": "What is blockchain?", "negative": "Summarise blockchain technology in one sentence."}
+{"positive": "How does the brain process memory?", "negative": "In one sentence, how does the brain store memories?"}
+{"positive": "Explain how aeroplanes fly.", "negative": "In one sentence, how do aeroplanes generate lift?"}
+{"positive": "What is relativity?", "negative": "Define Einstein's theory of relativity in one sentence."}
+{"positive": "How does natural selection work?", "negative": "In one sentence, how does natural selection drive evolution?"}
+{"positive": "Explain what a black hole is.", "negative": "Define a black hole in one sentence."}
+{"positive": "What is the stock market and how does it work?", "negative": "In one sentence, what is the stock market?"}
+{"positive": "How does the immune system work?", "negative": "In one sentence, what does the immune system do?"}
+{"positive": "Explain the water cycle.", "negative": "In one sentence, what is the water cycle?"}
+{"positive": "What is supply and demand?", "negative": "Define supply and demand in one sentence."}
+{"positive": "How does encryption work?", "negative": "In one sentence, what does encryption do to data?"}
+{"positive": "Tell me about the Roman Empire.", "negative": "In two sentences, summarise the Roman Empire."}
+{"positive": "Explain the scientific method.", "negative": "In one sentence, what is the scientific method?"}
+{"positive": "How does a nuclear reactor work?", "negative": "In one sentence, how does a nuclear reactor generate electricity?"}
+{"positive": "What is the difference between a virus and a bacterium?", "negative": "In one sentence, what distinguishes viruses from bacteria?"}
+{"positive": "Explain how compilers work.", "negative": "In one sentence, what does a compiler do?"}
+{"positive": "What is GDP and how is it measured?", "negative": "In one sentence, what is GDP?"}
+{"positive": "Explain the causes of the 2008 financial crisis.", "negative": "In one sentence, what triggered the 2008 financial crisis?"}
+{"positive": "How do solar panels work?", "negative": "In one sentence, how do solar panels generate electricity?"}
+{"positive": "What is the central limit theorem?", "negative": "Define the central limit theorem in one sentence."}
+{"positive": "Explain how CRISPR gene editing works.", "negative": "In one sentence, what does CRISPR do?"}
+{"positive": "Tell me about the Big Bang theory.", "negative": "In one sentence, what does the Big Bang theory describe?"}
+{"positive": "How does the digestive system work?", "negative": "In one sentence, what does the digestive system do?"}
+{"positive": "What is machine translation and how does it work?", "negative": "In one sentence, what is machine translation?"}
+{"positive": "Explain what a derivative is in calculus.", "negative": "In one sentence, what is a derivative?"}
+{"positive": "How does Wi-Fi work?", "negative": "In one sentence, how does Wi-Fi transmit data?"}
+{"positive": "What is the difference between deductive and inductive reasoning?", "negative": "In one sentence, what distinguishes deductive from inductive reasoning?"}
+{"positive": "Explain how antibiotics work.", "negative": "In one sentence, how do antibiotics fight bacterial infections?"}
+{"positive": "Tell me about the structure of DNA.", "negative": "In one sentence, what is the structure of DNA?"}
+{"positive": "How does deep learning work?", "negative": "In one sentence, what is deep learning?"}
+{"positive": "Explain the greenhouse effect.", "negative": "In one sentence, what is the greenhouse effect?"}
+{"positive": "What is a Fourier transform and why is it useful?", "negative": "In one sentence, what does a Fourier transform do?"}

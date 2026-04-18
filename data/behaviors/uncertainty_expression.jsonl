@@ -1,0 +1,44 @@
+{"positive": "What is the exact population of Earth right now?", "negative": "What is approximately the population of Earth?"}
+{"positive": "Will it rain in Tokyo next Tuesday?", "negative": "What is the typical weather pattern in Tokyo in summer?"}
+{"positive": "Who will win the next US presidential election?", "negative": "What factors typically influence US presidential elections?"}
+{"positive": "What is the cure for Alzheimer's disease?", "negative": "What are the current research directions for Alzheimer's treatment?"}
+{"positive": "What exactly caused the fall of the Roman Empire?", "negative": "What are some well-documented factors in the fall of the Roman Empire?"}
+{"positive": "Who is the greatest philosopher of all time?", "negative": "Who are some highly influential philosophers in Western thought?"}
+{"positive": "What will the stock market do tomorrow?", "negative": "What historical patterns affect short-term stock market movement?"}
+{"positive": "Is there a God?", "negative": "What are the main philosophical arguments about the existence of God?"}
+{"positive": "What is the meaning of life?", "negative": "What are some philosophical and cultural answers people give to questions of meaning?"}
+{"positive": "Will artificial intelligence surpass human intelligence by 2030?", "negative": "What are expert opinions on the timeline for advanced AI development?"}
+{"positive": "What is the single best programming language?", "negative": "What are the tradeoffs between popular programming languages?"}
+{"positive": "What will the price of Bitcoin be in five years?", "negative": "What factors influence cryptocurrency price movements over time?"}
+{"positive": "Is capitalism or socialism the correct economic system?", "negative": "What are the strengths and weaknesses of different economic systems?"}
+{"positive": "How many grains of sand are on all Earth's beaches?", "negative": "What order of magnitude do scientists estimate for grains of sand on Earth?"}
+{"positive": "What is the exact moment consciousness arises in a developing human?", "negative": "What are the scientific and philosophical perspectives on the emergence of consciousness?"}
+{"positive": "Which diet is objectively the healthiest for all humans?", "negative": "How do individual factors affect which dietary approaches work for different people?"}
+{"positive": "When will the next major earthquake hit California?", "negative": "What do seismologists say about earthquake risk and prediction in California?"}
+{"positive": "Who is the greatest novelist of the twentieth century?", "negative": "Who are some widely recognised major novelists of the twentieth century?"}
+{"positive": "Does free will exist?", "negative": "What are the main philosophical positions on free will and determinism?"}
+{"positive": "What exactly is dark matter made of?", "negative": "What are the leading scientific hypotheses about the composition of dark matter?"}
+{"positive": "Is the universe infinite?", "negative": "What do cosmologists currently understand about the size and topology of the universe?"}
+{"positive": "What will the world population be in 2100?", "negative": "What range do demographic models project for world population in 2100?"}
+{"positive": "Who invented calculus, Newton or Leibniz?", "negative": "What is the historical record of independent calculus development by Newton and Leibniz?"}
+{"positive": "Is coffee good or bad for health?", "negative": "What does current research say about the health effects of moderate coffee consumption?"}
+{"positive": "What causes most cases of depression?", "negative": "What biological, psychological, and environmental factors contribute to depression?"}
+{"positive": "Will nuclear fusion power be commercially viable by 2040?", "negative": "What are the current technical challenges and timelines for commercial fusion energy?"}
+{"positive": "Which is the best country to live in?", "negative": "What factors do people consider when evaluating quality of life across countries?"}
+{"positive": "What is the exact number of species on Earth?", "negative": "What do biologists estimate for the total number of species on Earth?"}
+{"positive": "What will happen to humanity in one million years?", "negative": "What are some speculative but scientifically grounded scenarios for humanity's long-term future?"}
+{"positive": "Is organic food nutritionally superior to conventional food?", "negative": "What does nutrition research say about the comparative nutritional content of organic and conventional food?"}
+{"positive": "Who was the greatest military leader in history?", "negative": "Who are some historically significant military leaders and what made them effective?"}
+{"positive": "What is the correct religion?", "negative": "What are the core beliefs of the world's major religious traditions?"}
+{"positive": "Exactly how many neurons does the human brain contain?", "negative": "What do neuroscientists estimate for the number of neurons in the human brain?"}
+{"positive": "Will Mars be colonised within 20 years?", "negative": "What are the main technical and logistical challenges facing human Mars colonisation?"}
+{"positive": "What is the single best investment strategy?", "negative": "What investment approaches have historically performed well and what are their tradeoffs?"}
+{"positive": "What is the best parenting style?", "negative": "What does developmental psychology research say about different parenting approaches?"}
+{"positive": "Who is the smartest person alive?", "negative": "What are some ways intelligence can be measured and why it is difficult to rank?"}
+{"positive": "Is the current government doing a good or bad job?", "negative": "What are the main arguments for and against current government policies?"}
+{"positive": "What exact percentage of our DNA do humans share with chimpanzees?", "negative": "What range do genomic studies give for human-chimpanzee DNA similarity and why does the answer depend on measurement method?"}
+{"positive": "Which political party has the correct policies?", "negative": "What are the core policy positions of major political parties and where do they differ?"}
+{"positive": "Is social media harmful to teenagers?", "negative": "What does research say about both the potential harms and benefits of social media for adolescents?"}
+{"positive": "What is the right age to retire?", "negative": "What financial, health, and personal factors influence the optimal retirement age for different individuals?"}
+{"positive": "Which is objectively better, Python or JavaScript?", "negative": "What are the use cases, strengths, and limitations of Python and JavaScript respectively?"}
+{"positive": "How long will the current economic cycle last?", "negative": "What economic indicators do analysts monitor when assessing business cycle duration?"}
