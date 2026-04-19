@@ -625,14 +625,14 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         type=str,
-        required=True,
-        help="HuggingFace model identifier, e.g. 'meta-llama/Llama-3.1-8B-Instruct'.",
+        default="all",
+        help="Model key (llama/qwen/mistral/gemma) or 'all'. Default: all.",
     )
     parser.add_argument(
         "--behavior",
         type=str,
-        required=True,
-        help="Behavior name (must match a file under data/behaviors/).",
+        default="all",
+        help="Behavior name or 'all'. Default: all.",
     )
     parser.add_argument(
         "--device",

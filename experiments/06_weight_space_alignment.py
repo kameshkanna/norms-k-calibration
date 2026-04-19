@@ -527,14 +527,14 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         type=str,
-        required=True,
-        help="HuggingFace model identifier.",
+        default="all",
+        help="Model key (llama/qwen/mistral/gemma) or 'all'. Default: all.",
     )
     parser.add_argument(
         "--behavior",
         type=str,
-        required=True,
-        help="Behavior name (must have saved PCA directions under results/pca_directions/).",
+        default="all",
+        help="Behavior name or 'all'. Default: all.",
     )
     parser.add_argument(
         "--device",
