@@ -1,0 +1,15 @@
+{
+  "model_key": "llama",
+  "behavior": "formality",
+  "mean_cosine_sim": 0.07854085846338421,
+  "std_cosine_sim": 0.1265456642147761,
+  "min_cosine_sim": 0.023452961817383766,
+  "max_cosine_sim": 0.9999998211860657,
+  "n_permutations": 5,
+  "n_layers": 32,
+  "permute_fraction": 0.5,
+  "n_valid_scores": 160,
+  "invariance_threshold": 0.85,
+  "claim_supported": false,
+  "seed": 42
+}

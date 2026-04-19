@@ -1,0 +1,67 @@
+2026-04-19 04:35:22,093 | INFO     | __main__ | Log file: results/logs/02_contrastive_extraction_gemma_verbosity_control_20260419_043522.log
+2026-04-19 04:35:24,966 | INFO     | __main__ | Contrastive extraction: models=['gemma']  behaviors=['verbosity_control']  n_components=5  device=cuda  seed=42
+2026-04-19 04:35:24,967 | INFO     | __main__ | ========================================================================
+2026-04-19 04:35:24,967 | INFO     | __main__ | MODEL: gemma
+2026-04-19 04:35:24,967 | INFO     | __main__ | ========================================================================
+2026-04-19 04:35:24,967 | INFO     | __main__ | Loading tokenizer: google/gemma-2-9b-it
+2026-04-19 04:35:25,830 | INFO     | __main__ | Loading model: google/gemma-2-9b-it  →  cuda
+2026-04-19 04:35:31,378 | INFO     | __main__ | Model loaded. Params: 9.2B  GPU mem: 17.21 GiB
+2026-04-19 04:35:31,378 | INFO     | activation_baking.model_utils | Detected model info: arch=gemma2, layers=42, hidden=3584, instruct=True
+2026-04-19 04:35:31,379 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:35:31,379 | INFO     | __main__ | Model=gemma  Behavior=verbosity_control
+2026-04-19 04:35:31,379 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:35:31,379 | INFO     | __main__ | Loaded 45 contrastive pairs for behavior 'verbosity_control'.
+2026-04-19 04:35:31,380 | INFO     | __main__ | Split: 36 train / 9 test  (seed=42).
+2026-04-19 04:35:31,387 | INFO     | activation_baking.extractor | ActivationExtractor initialised: device=cuda, batch_size=4.
+2026-04-19 04:35:31,388 | INFO     | __main__ | Extracting contrastive diffs for 36 train pairs…
+2026-04-19 04:35:31,388 | INFO     | activation_baking.extractor | Extracting contrastive diffs for 36 pairs across 42 layers.
+2026-04-19 04:35:33,837 | INFO     | PCADirector | PCADirector.fit complete: 42 layers.
+2026-04-19 04:35:33,838 | INFO     | __main__ | Explained variance ratios (top-5 components per layer):
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.0                  PC0=0.4855  PC1=0.1562  PC2=0.0737  PC3=0.0456  PC4=0.0354
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.1                  PC0=0.6502  PC1=0.0745  PC2=0.0516  PC3=0.0347  PC4=0.0267
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.2                  PC0=0.7439  PC1=0.0484  PC2=0.0380  PC3=0.0267  PC4=0.0190
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.3                  PC0=0.7678  PC1=0.0420  PC2=0.0338  PC3=0.0258  PC4=0.0179
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.4                  PC0=0.7807  PC1=0.0384  PC2=0.0282  PC3=0.0270  PC4=0.0163
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.5                  PC0=0.7408  PC1=0.0425  PC2=0.0364  PC3=0.0253  PC4=0.0186
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.6                  PC0=0.7722  PC1=0.0350  PC2=0.0335  PC3=0.0202  PC4=0.0166
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.7                  PC0=0.7862  PC1=0.0333  PC2=0.0308  PC3=0.0175  PC4=0.0153
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.8                  PC0=0.7625  PC1=0.0395  PC2=0.0301  PC3=0.0207  PC4=0.0169
+2026-04-19 04:35:33,838 | INFO     | __main__ |   model.layers.9                  PC0=0.7882  PC1=0.0346  PC2=0.0272  PC3=0.0166  PC4=0.0152
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.10                 PC0=0.7792  PC1=0.0392  PC2=0.0270  PC3=0.0161  PC4=0.0151
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.11                 PC0=0.7946  PC1=0.0368  PC2=0.0267  PC3=0.0179  PC4=0.0140
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.12                 PC0=0.7854  PC1=0.0407  PC2=0.0305  PC3=0.0193  PC4=0.0144
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.13                 PC0=0.7735  PC1=0.0665  PC2=0.0299  PC3=0.0192  PC4=0.0130
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.14                 PC0=0.7458  PC1=0.1254  PC2=0.0254  PC3=0.0157  PC4=0.0104
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.15                 PC0=0.7743  PC1=0.1289  PC2=0.0184  PC3=0.0119  PC4=0.0082
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.16                 PC0=0.7933  PC1=0.1218  PC2=0.0154  PC3=0.0107  PC4=0.0076
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.17                 PC0=0.8095  PC1=0.1161  PC2=0.0136  PC3=0.0096  PC4=0.0068
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.18                 PC0=0.8255  PC1=0.1050  PC2=0.0136  PC3=0.0091  PC4=0.0065
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.19                 PC0=0.8337  PC1=0.0983  PC2=0.0129  PC3=0.0091  PC4=0.0066
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.20                 PC0=0.8411  PC1=0.0897  PC2=0.0131  PC3=0.0093  PC4=0.0072
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.21                 PC0=0.8513  PC1=0.0808  PC2=0.0137  PC3=0.0092  PC4=0.0072
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.22                 PC0=0.8656  PC1=0.0700  PC2=0.0125  PC3=0.0087  PC4=0.0068
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.23                 PC0=0.8864  PC1=0.0464  PC2=0.0125  PC3=0.0091  PC4=0.0076
+2026-04-19 04:35:33,839 | INFO     | __main__ |   model.layers.24                 PC0=0.9033  PC1=0.0305  PC2=0.0124  PC3=0.0086  PC4=0.0072
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.25                 PC0=0.9033  PC1=0.0277  PC2=0.0133  PC3=0.0094  PC4=0.0073
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.26                 PC0=0.9172  PC1=0.0168  PC2=0.0109  PC3=0.0083  PC4=0.0072
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.27                 PC0=0.9199  PC1=0.0163  PC2=0.0105  PC3=0.0079  PC4=0.0063
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.28                 PC0=0.9179  PC1=0.0153  PC2=0.0106  PC3=0.0081  PC4=0.0061
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.29                 PC0=0.9136  PC1=0.0156  PC2=0.0117  PC3=0.0083  PC4=0.0063
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.30                 PC0=0.9059  PC1=0.0159  PC2=0.0127  PC3=0.0085  PC4=0.0068
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.31                 PC0=0.8996  PC1=0.0159  PC2=0.0131  PC3=0.0088  PC4=0.0070
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.32                 PC0=0.8946  PC1=0.0156  PC2=0.0137  PC3=0.0091  PC4=0.0073
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.33                 PC0=0.8875  PC1=0.0159  PC2=0.0147  PC3=0.0096  PC4=0.0078
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.34                 PC0=0.8802  PC1=0.0161  PC2=0.0157  PC3=0.0099  PC4=0.0082
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.35                 PC0=0.8730  PC1=0.0163  PC2=0.0156  PC3=0.0103  PC4=0.0085
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.36                 PC0=0.8634  PC1=0.0173  PC2=0.0170  PC3=0.0106  PC4=0.0090
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.37                 PC0=0.8594  PC1=0.0178  PC2=0.0167  PC3=0.0109  PC4=0.0090
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.38                 PC0=0.8508  PC1=0.0185  PC2=0.0169  PC3=0.0117  PC4=0.0098
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.39                 PC0=0.8412  PC1=0.0215  PC2=0.0185  PC3=0.0119  PC4=0.0106
+2026-04-19 04:35:33,840 | INFO     | __main__ |   model.layers.40                 PC0=0.8224  PC1=0.0280  PC2=0.0211  PC3=0.0129  PC4=0.0116
+2026-04-19 04:35:33,841 | INFO     | __main__ |   model.layers.41                 PC0=0.7830  PC1=0.0531  PC2=0.0244  PC3=0.0141  PC4=0.0127
+2026-04-19 04:35:33,850 | INFO     | __main__ | Directions saved → results/pca_directions/gemma/verbosity_control/directions.pt
+2026-04-19 04:35:33,876 | INFO     | __main__ | Raw contrastive diffs saved → results/pca_directions/gemma/verbosity_control/raw_diffs.pt
+2026-04-19 04:35:33,879 | INFO     | __main__ | Variance explained CSV saved → results/pca_directions/gemma/verbosity_control/variance_explained.csv
+2026-04-19 04:35:33,879 | INFO     | __main__ | Split indices saved → results/pca_directions/gemma/verbosity_control/split_indices.json
+2026-04-19 04:35:34,067 | INFO     | __main__ | Finished model 'gemma' in 9.1s  GPU mem=17.22 GiB
+2026-04-19 04:35:34,360 | INFO     | __main__ | All contrastive extraction complete. Processed 1 model(s) × 1 behavior(s).

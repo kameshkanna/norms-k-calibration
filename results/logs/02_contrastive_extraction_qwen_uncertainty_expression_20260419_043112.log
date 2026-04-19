@@ -1,0 +1,53 @@
+2026-04-19 04:31:12,385 | INFO     | __main__ | Log file: results/logs/02_contrastive_extraction_qwen_uncertainty_expression_20260419_043112.log
+2026-04-19 04:31:15,237 | INFO     | __main__ | Contrastive extraction: models=['qwen']  behaviors=['uncertainty_expression']  n_components=5  device=cuda  seed=42
+2026-04-19 04:31:15,238 | INFO     | __main__ | ========================================================================
+2026-04-19 04:31:15,238 | INFO     | __main__ | MODEL: qwen
+2026-04-19 04:31:15,239 | INFO     | __main__ | ========================================================================
+2026-04-19 04:31:15,239 | INFO     | __main__ | Loading tokenizer: Qwen/Qwen2.5-7B-Instruct
+2026-04-19 04:31:15,662 | INFO     | __main__ | Loading model: Qwen/Qwen2.5-7B-Instruct  →  cuda
+2026-04-19 04:31:21,037 | INFO     | __main__ | Model loaded. Params: 7.6B  GPU mem: 14.67 GiB
+2026-04-19 04:31:21,037 | INFO     | activation_baking.model_utils | Detected model info: arch=qwen2, layers=28, hidden=3584, instruct=True
+2026-04-19 04:31:21,038 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:31:21,038 | INFO     | __main__ | Model=qwen  Behavior=uncertainty_expression
+2026-04-19 04:31:21,038 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:31:21,038 | INFO     | __main__ | Loaded 45 contrastive pairs for behavior 'uncertainty_expression'.
+2026-04-19 04:31:21,039 | INFO     | __main__ | Split: 36 train / 9 test  (seed=42).
+2026-04-19 04:31:21,044 | INFO     | activation_baking.extractor | ActivationExtractor initialised: device=cuda, batch_size=4.
+2026-04-19 04:31:21,044 | INFO     | __main__ | Extracting contrastive diffs for 36 train pairs…
+2026-04-19 04:31:21,044 | INFO     | activation_baking.extractor | Extracting contrastive diffs for 36 pairs across 28 layers.
+2026-04-19 04:31:23,354 | INFO     | PCADirector | PCADirector.fit complete: 28 layers.
+2026-04-19 04:31:23,354 | INFO     | __main__ | Explained variance ratios (top-5 components per layer):
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.0                  PC0=0.1866  PC1=0.1317  PC2=0.0749  PC3=0.0579  PC4=0.0418
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.1                  PC0=0.1655  PC1=0.1310  PC2=0.0926  PC3=0.0633  PC4=0.0598
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.2                  PC0=0.1438  PC1=0.1117  PC2=0.0903  PC3=0.0639  PC4=0.0573
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.3                  PC0=0.1322  PC1=0.1101  PC2=0.0849  PC3=0.0822  PC4=0.0656
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.4                  PC0=0.1447  PC1=0.1031  PC2=0.0855  PC3=0.0811  PC4=0.0645
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.5                  PC0=0.1422  PC1=0.1049  PC2=0.0861  PC3=0.0717  PC4=0.0625
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.6                  PC0=0.1321  PC1=0.1063  PC2=0.0857  PC3=0.0715  PC4=0.0622
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.7                  PC0=0.1321  PC1=0.1010  PC2=0.0887  PC3=0.0738  PC4=0.0594
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.8                  PC0=0.1363  PC1=0.0935  PC2=0.0766  PC3=0.0654  PC4=0.0621
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.9                  PC0=0.1264  PC1=0.0922  PC2=0.0722  PC3=0.0622  PC4=0.0556
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.10                 PC0=0.1175  PC1=0.0964  PC2=0.0746  PC3=0.0616  PC4=0.0553
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.11                 PC0=0.1099  PC1=0.0990  PC2=0.0774  PC3=0.0602  PC4=0.0543
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.12                 PC0=0.1112  PC1=0.0980  PC2=0.0774  PC3=0.0590  PC4=0.0549
+2026-04-19 04:31:23,355 | INFO     | __main__ |   model.layers.13                 PC0=0.1118  PC1=0.0971  PC2=0.0773  PC3=0.0581  PC4=0.0522
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.14                 PC0=0.1167  PC1=0.1013  PC2=0.0785  PC3=0.0612  PC4=0.0557
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.15                 PC0=0.1226  PC1=0.1040  PC2=0.0829  PC3=0.0629  PC4=0.0536
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.16                 PC0=0.1200  PC1=0.1014  PC2=0.0823  PC3=0.0653  PC4=0.0538
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.17                 PC0=0.1288  PC1=0.0972  PC2=0.0833  PC3=0.0640  PC4=0.0522
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.18                 PC0=0.1236  PC1=0.1032  PC2=0.0906  PC3=0.0641  PC4=0.0535
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.19                 PC0=0.1318  PC1=0.1203  PC2=0.0852  PC3=0.0630  PC4=0.0535
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.20                 PC0=0.1362  PC1=0.1246  PC2=0.0785  PC3=0.0643  PC4=0.0545
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.21                 PC0=0.1364  PC1=0.1246  PC2=0.0716  PC3=0.0646  PC4=0.0541
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.22                 PC0=0.1282  PC1=0.1153  PC2=0.0708  PC3=0.0609  PC4=0.0553
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.23                 PC0=0.1289  PC1=0.1089  PC2=0.0685  PC3=0.0570  PC4=0.0523
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.24                 PC0=0.1189  PC1=0.1069  PC2=0.0707  PC3=0.0556  PC4=0.0495
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.25                 PC0=0.1231  PC1=0.1023  PC2=0.0723  PC3=0.0554  PC4=0.0527
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.26                 PC0=0.1181  PC1=0.1008  PC2=0.0638  PC3=0.0555  PC4=0.0519
+2026-04-19 04:31:23,356 | INFO     | __main__ |   model.layers.27                 PC0=0.1560  PC1=0.1137  PC2=0.0758  PC3=0.0642  PC4=0.0438
+2026-04-19 04:31:23,363 | INFO     | __main__ | Directions saved → results/pca_directions/qwen/uncertainty_expression/directions.pt
+2026-04-19 04:31:23,380 | INFO     | __main__ | Raw contrastive diffs saved → results/pca_directions/qwen/uncertainty_expression/raw_diffs.pt
+2026-04-19 04:31:23,383 | INFO     | __main__ | Variance explained CSV saved → results/pca_directions/qwen/uncertainty_expression/variance_explained.csv
+2026-04-19 04:31:23,384 | INFO     | __main__ | Split indices saved → results/pca_directions/qwen/uncertainty_expression/split_indices.json
+2026-04-19 04:31:23,577 | INFO     | __main__ | Finished model 'qwen' in 8.3s  GPU mem=14.68 GiB
+2026-04-19 04:31:23,839 | INFO     | __main__ | All contrastive extraction complete. Processed 1 model(s) × 1 behavior(s).

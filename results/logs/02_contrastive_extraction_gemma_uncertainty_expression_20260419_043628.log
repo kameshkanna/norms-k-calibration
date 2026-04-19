@@ -1,0 +1,67 @@
+2026-04-19 04:36:28,206 | INFO     | __main__ | Log file: results/logs/02_contrastive_extraction_gemma_uncertainty_expression_20260419_043628.log
+2026-04-19 04:36:31,046 | INFO     | __main__ | Contrastive extraction: models=['gemma']  behaviors=['uncertainty_expression']  n_components=5  device=cuda  seed=42
+2026-04-19 04:36:31,047 | INFO     | __main__ | ========================================================================
+2026-04-19 04:36:31,047 | INFO     | __main__ | MODEL: gemma
+2026-04-19 04:36:31,047 | INFO     | __main__ | ========================================================================
+2026-04-19 04:36:31,047 | INFO     | __main__ | Loading tokenizer: google/gemma-2-9b-it
+2026-04-19 04:36:31,926 | INFO     | __main__ | Loading model: google/gemma-2-9b-it  →  cuda
+2026-04-19 04:36:37,539 | INFO     | __main__ | Model loaded. Params: 9.2B  GPU mem: 17.21 GiB
+2026-04-19 04:36:37,539 | INFO     | activation_baking.model_utils | Detected model info: arch=gemma2, layers=42, hidden=3584, instruct=True
+2026-04-19 04:36:37,539 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:36:37,540 | INFO     | __main__ | Model=gemma  Behavior=uncertainty_expression
+2026-04-19 04:36:37,540 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:36:37,540 | INFO     | __main__ | Loaded 45 contrastive pairs for behavior 'uncertainty_expression'.
+2026-04-19 04:36:37,540 | INFO     | __main__ | Split: 36 train / 9 test  (seed=42).
+2026-04-19 04:36:37,548 | INFO     | activation_baking.extractor | ActivationExtractor initialised: device=cuda, batch_size=4.
+2026-04-19 04:36:37,549 | INFO     | __main__ | Extracting contrastive diffs for 36 train pairs…
+2026-04-19 04:36:37,549 | INFO     | activation_baking.extractor | Extracting contrastive diffs for 36 pairs across 42 layers.
+2026-04-19 04:36:40,024 | INFO     | PCADirector | PCADirector.fit complete: 42 layers.
+2026-04-19 04:36:40,024 | INFO     | __main__ | Explained variance ratios (top-5 components per layer):
+2026-04-19 04:36:40,024 | INFO     | __main__ |   model.layers.0                  PC0=0.1850  PC1=0.1237  PC2=0.0762  PC3=0.0714  PC4=0.0563
+2026-04-19 04:36:40,024 | INFO     | __main__ |   model.layers.1                  PC0=0.1526  PC1=0.0951  PC2=0.0756  PC3=0.0710  PC4=0.0640
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.2                  PC0=0.1369  PC1=0.0974  PC2=0.0717  PC3=0.0661  PC4=0.0625
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.3                  PC0=0.1269  PC1=0.0958  PC2=0.0750  PC3=0.0600  PC4=0.0567
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.4                  PC0=0.1330  PC1=0.0941  PC2=0.0805  PC3=0.0574  PC4=0.0545
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.5                  PC0=0.1319  PC1=0.0974  PC2=0.0846  PC3=0.0570  PC4=0.0544
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.6                  PC0=0.1262  PC1=0.0928  PC2=0.0775  PC3=0.0561  PC4=0.0555
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.7                  PC0=0.1281  PC1=0.0924  PC2=0.0793  PC3=0.0570  PC4=0.0530
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.8                  PC0=0.1161  PC1=0.0846  PC2=0.0825  PC3=0.0574  PC4=0.0528
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.9                  PC0=0.1058  PC1=0.0838  PC2=0.0752  PC3=0.0608  PC4=0.0494
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.10                 PC0=0.1043  PC1=0.0817  PC2=0.0746  PC3=0.0606  PC4=0.0501
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.11                 PC0=0.0970  PC1=0.0791  PC2=0.0737  PC3=0.0610  PC4=0.0514
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.12                 PC0=0.0978  PC1=0.0780  PC2=0.0722  PC3=0.0619  PC4=0.0563
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.13                 PC0=0.1260  PC1=0.0871  PC2=0.0690  PC3=0.0605  PC4=0.0568
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.14                 PC0=0.2470  PC1=0.0770  PC2=0.0601  PC3=0.0523  PC4=0.0470
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.15                 PC0=0.3534  PC1=0.0652  PC2=0.0514  PC3=0.0463  PC4=0.0392
+2026-04-19 04:36:40,025 | INFO     | __main__ |   model.layers.16                 PC0=0.3948  PC1=0.0609  PC2=0.0476  PC3=0.0413  PC4=0.0360
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.17                 PC0=0.4181  PC1=0.0597  PC2=0.0435  PC3=0.0414  PC4=0.0360
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.18                 PC0=0.4324  PC1=0.0582  PC2=0.0437  PC3=0.0393  PC4=0.0360
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.19                 PC0=0.4197  PC1=0.0600  PC2=0.0450  PC3=0.0395  PC4=0.0375
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.20                 PC0=0.3987  PC1=0.0639  PC2=0.0479  PC3=0.0429  PC4=0.0373
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.21                 PC0=0.3744  PC1=0.0669  PC2=0.0517  PC3=0.0454  PC4=0.0403
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.22                 PC0=0.3604  PC1=0.0678  PC2=0.0538  PC3=0.0508  PC4=0.0408
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.23                 PC0=0.2266  PC1=0.0821  PC2=0.0672  PC3=0.0658  PC4=0.0475
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.24                 PC0=0.1358  PC1=0.0945  PC2=0.0794  PC3=0.0700  PC4=0.0559
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.25                 PC0=0.1292  PC1=0.0973  PC2=0.0798  PC3=0.0677  PC4=0.0544
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.26                 PC0=0.1155  PC1=0.0866  PC2=0.0753  PC3=0.0594  PC4=0.0443
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.27                 PC0=0.1122  PC1=0.0840  PC2=0.0789  PC3=0.0582  PC4=0.0415
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.28                 PC0=0.1168  PC1=0.0806  PC2=0.0721  PC3=0.0536  PC4=0.0409
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.29                 PC0=0.1252  PC1=0.0783  PC2=0.0701  PC3=0.0517  PC4=0.0400
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.30                 PC0=0.1205  PC1=0.0752  PC2=0.0691  PC3=0.0521  PC4=0.0403
+2026-04-19 04:36:40,026 | INFO     | __main__ |   model.layers.31                 PC0=0.1215  PC1=0.0737  PC2=0.0691  PC3=0.0498  PC4=0.0410
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.32                 PC0=0.1129  PC1=0.0734  PC2=0.0655  PC3=0.0507  PC4=0.0422
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.33                 PC0=0.1188  PC1=0.0701  PC2=0.0634  PC3=0.0481  PC4=0.0429
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.34                 PC0=0.1282  PC1=0.0690  PC2=0.0626  PC3=0.0479  PC4=0.0429
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.35                 PC0=0.1048  PC1=0.0696  PC2=0.0624  PC3=0.0487  PC4=0.0432
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.36                 PC0=0.1118  PC1=0.0681  PC2=0.0622  PC3=0.0471  PC4=0.0432
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.37                 PC0=0.1027  PC1=0.0658  PC2=0.0626  PC3=0.0481  PC4=0.0430
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.38                 PC0=0.0994  PC1=0.0659  PC2=0.0622  PC3=0.0500  PC4=0.0430
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.39                 PC0=0.1135  PC1=0.0653  PC2=0.0621  PC3=0.0513  PC4=0.0432
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.40                 PC0=0.1663  PC1=0.0693  PC2=0.0603  PC3=0.0525  PC4=0.0417
+2026-04-19 04:36:40,027 | INFO     | __main__ |   model.layers.41                 PC0=0.2574  PC1=0.0745  PC2=0.0509  PC3=0.0455  PC4=0.0364
+2026-04-19 04:36:40,036 | INFO     | __main__ | Directions saved → results/pca_directions/gemma/uncertainty_expression/directions.pt
+2026-04-19 04:36:40,062 | INFO     | __main__ | Raw contrastive diffs saved → results/pca_directions/gemma/uncertainty_expression/raw_diffs.pt
+2026-04-19 04:36:40,066 | INFO     | __main__ | Variance explained CSV saved → results/pca_directions/gemma/uncertainty_expression/variance_explained.csv
+2026-04-19 04:36:40,066 | INFO     | __main__ | Split indices saved → results/pca_directions/gemma/uncertainty_expression/split_indices.json
+2026-04-19 04:36:40,251 | INFO     | __main__ | Finished model 'gemma' in 9.2s  GPU mem=17.22 GiB
+2026-04-19 04:36:40,545 | INFO     | __main__ | All contrastive extraction complete. Processed 1 model(s) × 1 behavior(s).

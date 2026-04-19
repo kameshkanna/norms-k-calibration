@@ -1,0 +1,15 @@
+{
+  "model_key": "qwen",
+  "behavior": "sycophancy_suppression",
+  "mean_cosine_sim": 0.10529953438256467,
+  "std_cosine_sim": 0.09752845730768293,
+  "min_cosine_sim": 0.04445848613977432,
+  "max_cosine_sim": 1.0,
+  "n_permutations": 5,
+  "n_layers": 28,
+  "permute_fraction": 0.5,
+  "n_valid_scores": 140,
+  "invariance_threshold": 0.85,
+  "claim_supported": false,
+  "seed": 42
+}

@@ -1,0 +1,57 @@
+2026-04-19 04:32:12,896 | INFO     | __main__ | Log file: results/logs/02_contrastive_extraction_mistral_refusal_calibration_20260419_043212.log
+2026-04-19 04:32:15,766 | INFO     | __main__ | Contrastive extraction: models=['mistral']  behaviors=['refusal_calibration']  n_components=5  device=cuda  seed=42
+2026-04-19 04:32:15,768 | INFO     | __main__ | ========================================================================
+2026-04-19 04:32:15,768 | INFO     | __main__ | MODEL: mistral
+2026-04-19 04:32:15,768 | INFO     | __main__ | ========================================================================
+2026-04-19 04:32:15,768 | INFO     | __main__ | Loading tokenizer: mistralai/Mistral-7B-Instruct-v0.3
+2026-04-19 04:32:16,600 | INFO     | __main__ | Loading model: mistralai/Mistral-7B-Instruct-v0.3  →  cuda
+2026-04-19 04:32:21,557 | INFO     | __main__ | Model loaded. Params: 7.2B  GPU mem: 13.50 GiB
+2026-04-19 04:32:21,557 | INFO     | activation_baking.model_utils | Detected model info: arch=mistral, layers=32, hidden=4096, instruct=True
+2026-04-19 04:32:21,558 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:32:21,558 | INFO     | __main__ | Model=mistral  Behavior=refusal_calibration
+2026-04-19 04:32:21,558 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:32:21,558 | INFO     | __main__ | Loaded 45 contrastive pairs for behavior 'refusal_calibration'.
+2026-04-19 04:32:21,558 | INFO     | __main__ | Split: 36 train / 9 test  (seed=42).
+2026-04-19 04:32:21,564 | INFO     | activation_baking.extractor | ActivationExtractor initialised: device=cuda, batch_size=4.
+2026-04-19 04:32:21,564 | INFO     | __main__ | Extracting contrastive diffs for 36 train pairs…
+2026-04-19 04:32:21,564 | INFO     | activation_baking.extractor | Extracting contrastive diffs for 36 pairs across 32 layers.
+2026-04-19 04:32:24,191 | INFO     | PCADirector | PCADirector.fit complete: 32 layers.
+2026-04-19 04:32:24,191 | INFO     | __main__ | Explained variance ratios (top-5 components per layer):
+2026-04-19 04:32:24,191 | INFO     | __main__ |   model.layers.0                  PC0=0.1471  PC1=0.0623  PC2=0.0546  PC3=0.0484  PC4=0.0455
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.1                  PC0=0.1083  PC1=0.0589  PC2=0.0517  PC3=0.0488  PC4=0.0472
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.2                  PC0=0.1080  PC1=0.0683  PC2=0.0547  PC3=0.0485  PC4=0.0475
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.3                  PC0=0.0937  PC1=0.0642  PC2=0.0523  PC3=0.0480  PC4=0.0443
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.4                  PC0=0.1073  PC1=0.0626  PC2=0.0528  PC3=0.0477  PC4=0.0407
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.5                  PC0=0.0992  PC1=0.0569  PC2=0.0453  PC3=0.0440  PC4=0.0416
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.6                  PC0=0.0967  PC1=0.0564  PC2=0.0467  PC3=0.0449  PC4=0.0421
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.7                  PC0=0.0940  PC1=0.0568  PC2=0.0483  PC3=0.0460  PC4=0.0440
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.8                  PC0=0.0934  PC1=0.0562  PC2=0.0498  PC3=0.0467  PC4=0.0432
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.9                  PC0=0.1026  PC1=0.0571  PC2=0.0501  PC3=0.0486  PC4=0.0409
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.10                 PC0=0.1041  PC1=0.0619  PC2=0.0507  PC3=0.0463  PC4=0.0429
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.11                 PC0=0.1067  PC1=0.0674  PC2=0.0496  PC3=0.0450  PC4=0.0417
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.12                 PC0=0.1139  PC1=0.0678  PC2=0.0490  PC3=0.0461  PC4=0.0423
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.13                 PC0=0.1246  PC1=0.0745  PC2=0.0489  PC3=0.0437  PC4=0.0421
+2026-04-19 04:32:24,192 | INFO     | __main__ |   model.layers.14                 PC0=0.1431  PC1=0.0766  PC2=0.0476  PC3=0.0466  PC4=0.0420
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.15                 PC0=0.1560  PC1=0.0730  PC2=0.0487  PC3=0.0446  PC4=0.0409
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.16                 PC0=0.1719  PC1=0.0668  PC2=0.0522  PC3=0.0431  PC4=0.0395
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.17                 PC0=0.1847  PC1=0.0664  PC2=0.0507  PC3=0.0456  PC4=0.0383
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.18                 PC0=0.1903  PC1=0.0643  PC2=0.0502  PC3=0.0464  PC4=0.0375
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.19                 PC0=0.1754  PC1=0.0645  PC2=0.0528  PC3=0.0434  PC4=0.0366
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.20                 PC0=0.1738  PC1=0.0609  PC2=0.0565  PC3=0.0426  PC4=0.0363
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.21                 PC0=0.1558  PC1=0.0635  PC2=0.0573  PC3=0.0423  PC4=0.0370
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.22                 PC0=0.1540  PC1=0.0646  PC2=0.0570  PC3=0.0435  PC4=0.0375
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.23                 PC0=0.1536  PC1=0.0660  PC2=0.0597  PC3=0.0427  PC4=0.0372
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.24                 PC0=0.1499  PC1=0.0659  PC2=0.0581  PC3=0.0420  PC4=0.0376
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.25                 PC0=0.1483  PC1=0.0658  PC2=0.0601  PC3=0.0428  PC4=0.0371
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.26                 PC0=0.1460  PC1=0.0658  PC2=0.0600  PC3=0.0432  PC4=0.0368
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.27                 PC0=0.1465  PC1=0.0648  PC2=0.0590  PC3=0.0421  PC4=0.0367
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.28                 PC0=0.1505  PC1=0.0701  PC2=0.0612  PC3=0.0406  PC4=0.0375
+2026-04-19 04:32:24,193 | INFO     | __main__ |   model.layers.29                 PC0=0.1570  PC1=0.0689  PC2=0.0647  PC3=0.0416  PC4=0.0374
+2026-04-19 04:32:24,194 | INFO     | __main__ |   model.layers.30                 PC0=0.1708  PC1=0.0770  PC2=0.0701  PC3=0.0400  PC4=0.0375
+2026-04-19 04:32:24,194 | INFO     | __main__ |   model.layers.31                 PC0=0.1948  PC1=0.0904  PC2=0.0663  PC3=0.0448  PC4=0.0382
+2026-04-19 04:32:24,201 | INFO     | __main__ | Directions saved → results/pca_directions/mistral/refusal_calibration/directions.pt
+2026-04-19 04:32:24,223 | INFO     | __main__ | Raw contrastive diffs saved → results/pca_directions/mistral/refusal_calibration/raw_diffs.pt
+2026-04-19 04:32:24,227 | INFO     | __main__ | Variance explained CSV saved → results/pca_directions/mistral/refusal_calibration/variance_explained.csv
+2026-04-19 04:32:24,227 | INFO     | __main__ | Split indices saved → results/pca_directions/mistral/refusal_calibration/split_indices.json
+2026-04-19 04:32:24,425 | INFO     | __main__ | Finished model 'mistral' in 8.7s  GPU mem=13.51 GiB
+2026-04-19 04:32:24,650 | INFO     | __main__ | All contrastive extraction complete. Processed 1 model(s) × 1 behavior(s).

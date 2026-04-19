@@ -1,0 +1,57 @@
+2026-04-19 04:28:16,754 | INFO     | __main__ | Log file: results/logs/02_contrastive_extraction_llama_formality_20260419_042816.log
+2026-04-19 04:28:19,573 | INFO     | __main__ | Contrastive extraction: models=['llama']  behaviors=['formality']  n_components=5  device=cuda  seed=42
+2026-04-19 04:28:19,574 | INFO     | __main__ | ========================================================================
+2026-04-19 04:28:19,575 | INFO     | __main__ | MODEL: llama
+2026-04-19 04:28:19,575 | INFO     | __main__ | ========================================================================
+2026-04-19 04:28:19,575 | INFO     | __main__ | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
+2026-04-19 04:28:20,065 | INFO     | __main__ | Loading model: meta-llama/Llama-3.1-8B-Instruct  →  cuda
+2026-04-19 04:28:25,190 | INFO     | __main__ | Model loaded. Params: 8.0B  GPU mem: 14.96 GiB
+2026-04-19 04:28:25,190 | INFO     | activation_baking.model_utils | Detected model info: arch=llama, layers=32, hidden=4096, instruct=True
+2026-04-19 04:28:25,191 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:28:25,191 | INFO     | __main__ | Model=llama  Behavior=formality
+2026-04-19 04:28:25,191 | INFO     | __main__ | ------------------------------------------------------------
+2026-04-19 04:28:25,191 | INFO     | __main__ | Loaded 45 contrastive pairs for behavior 'formality'.
+2026-04-19 04:28:25,192 | INFO     | __main__ | Split: 36 train / 9 test  (seed=42).
+2026-04-19 04:28:25,197 | INFO     | activation_baking.extractor | ActivationExtractor initialised: device=cuda, batch_size=4.
+2026-04-19 04:28:25,197 | INFO     | __main__ | Extracting contrastive diffs for 36 train pairs…
+2026-04-19 04:28:25,197 | INFO     | activation_baking.extractor | Extracting contrastive diffs for 36 pairs across 32 layers.
+2026-04-19 04:28:27,707 | INFO     | PCADirector | PCADirector.fit complete: 32 layers.
+2026-04-19 04:28:27,707 | INFO     | __main__ | Explained variance ratios (top-5 components per layer):
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.0                  PC0=0.1090  PC1=0.0736  PC2=0.0526  PC3=0.0459  PC4=0.0431
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.1                  PC0=0.0761  PC1=0.0617  PC2=0.0525  PC3=0.0430  PC4=0.0416
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.2                  PC0=0.0949  PC1=0.0553  PC2=0.0510  PC3=0.0441  PC4=0.0396
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.3                  PC0=0.0861  PC1=0.0573  PC2=0.0492  PC3=0.0468  PC4=0.0400
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.4                  PC0=0.0868  PC1=0.0597  PC2=0.0520  PC3=0.0430  PC4=0.0400
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.5                  PC0=0.0917  PC1=0.0565  PC2=0.0524  PC3=0.0456  PC4=0.0416
+2026-04-19 04:28:27,707 | INFO     | __main__ |   model.layers.6                  PC0=0.0960  PC1=0.0576  PC2=0.0509  PC3=0.0463  PC4=0.0419
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.7                  PC0=0.0905  PC1=0.0556  PC2=0.0526  PC3=0.0434  PC4=0.0419
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.8                  PC0=0.0854  PC1=0.0548  PC2=0.0525  PC3=0.0459  PC4=0.0429
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.9                  PC0=0.0882  PC1=0.0575  PC2=0.0547  PC3=0.0455  PC4=0.0419
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.10                 PC0=0.0889  PC1=0.0594  PC2=0.0547  PC3=0.0438  PC4=0.0421
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.11                 PC0=0.0956  PC1=0.0578  PC2=0.0548  PC3=0.0437  PC4=0.0422
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.12                 PC0=0.0975  PC1=0.0615  PC2=0.0536  PC3=0.0445  PC4=0.0420
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.13                 PC0=0.0934  PC1=0.0676  PC2=0.0536  PC3=0.0457  PC4=0.0419
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.14                 PC0=0.0969  PC1=0.0717  PC2=0.0508  PC3=0.0435  PC4=0.0418
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.15                 PC0=0.0959  PC1=0.0723  PC2=0.0524  PC3=0.0461  PC4=0.0419
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.16                 PC0=0.0965  PC1=0.0745  PC2=0.0543  PC3=0.0466  PC4=0.0416
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.17                 PC0=0.0975  PC1=0.0756  PC2=0.0531  PC3=0.0478  PC4=0.0424
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.18                 PC0=0.0957  PC1=0.0777  PC2=0.0548  PC3=0.0478  PC4=0.0428
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.19                 PC0=0.0956  PC1=0.0790  PC2=0.0535  PC3=0.0491  PC4=0.0430
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.20                 PC0=0.0934  PC1=0.0798  PC2=0.0539  PC3=0.0484  PC4=0.0463
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.21                 PC0=0.0944  PC1=0.0786  PC2=0.0540  PC3=0.0490  PC4=0.0467
+2026-04-19 04:28:27,708 | INFO     | __main__ |   model.layers.22                 PC0=0.0949  PC1=0.0791  PC2=0.0544  PC3=0.0513  PC4=0.0468
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.23                 PC0=0.0961  PC1=0.0784  PC2=0.0548  PC3=0.0511  PC4=0.0474
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.24                 PC0=0.0997  PC1=0.0769  PC2=0.0540  PC3=0.0506  PC4=0.0469
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.25                 PC0=0.0989  PC1=0.0780  PC2=0.0558  PC3=0.0518  PC4=0.0473
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.26                 PC0=0.1033  PC1=0.0792  PC2=0.0559  PC3=0.0506  PC4=0.0476
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.27                 PC0=0.0989  PC1=0.0806  PC2=0.0570  PC3=0.0503  PC4=0.0476
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.28                 PC0=0.0982  PC1=0.0808  PC2=0.0557  PC3=0.0501  PC4=0.0478
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.29                 PC0=0.0986  PC1=0.0852  PC2=0.0559  PC3=0.0519  PC4=0.0469
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.30                 PC0=0.1035  PC1=0.0867  PC2=0.0535  PC3=0.0526  PC4=0.0468
+2026-04-19 04:28:27,709 | INFO     | __main__ |   model.layers.31                 PC0=0.1308  PC1=0.0882  PC2=0.0674  PC3=0.0536  PC4=0.0500
+2026-04-19 04:28:27,716 | INFO     | __main__ | Directions saved → results/pca_directions/llama/formality/directions.pt
+2026-04-19 04:28:27,739 | INFO     | __main__ | Raw contrastive diffs saved → results/pca_directions/llama/formality/raw_diffs.pt
+2026-04-19 04:28:27,742 | INFO     | __main__ | Variance explained CSV saved → results/pca_directions/llama/formality/variance_explained.csv
+2026-04-19 04:28:27,742 | INFO     | __main__ | Split indices saved → results/pca_directions/llama/formality/split_indices.json
+2026-04-19 04:28:27,931 | INFO     | __main__ | Finished model 'llama' in 8.4s  GPU mem=14.97 GiB
+2026-04-19 04:28:28,184 | INFO     | __main__ | All contrastive extraction complete. Processed 1 model(s) × 1 behavior(s).
