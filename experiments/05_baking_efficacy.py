@@ -171,7 +171,7 @@ def load_split_indices(
     if split_path.exists():
         with split_path.open() as fh:
             split = json.load(fh)
-        return split["train"], split["test"]
+        return split.get("train", split.get("train_indices", [])), split.get("test", split.get("test_indices", []))
 
     logger.warning(
         "split_indices.json not found at %s — using default 80/20 split.", split_path
