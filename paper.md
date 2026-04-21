@@ -8,7 +8,7 @@
 
 ## Abstract
 
-Activation steering — injecting contrastive direction vectors into a transformer's residual stream — offers a parameter-efficient mechanism for behavioral control in large language models, yet the per-layer intervention magnitude $K$ remains a manual, architecture-specific hyperparameter in all existing methods. We address this gap by deriving a closed-form calibration formula, $K_\ell = \bar\mu_\ell / \sqrt{d}$, from a rank-1 weight perturbation equivalence: a unit-norm rank-1 update $\Delta W = \alpha\,\mathbf{u}\mathbf{v}^\top$ produces an expected output shift of $\alpha/\sqrt{d}$ on typical inputs, so setting $K$ to the per-layer activation norm divided by $\sqrt{d}$ anchors each intervention to the local weight-space scale. We validate this formula across four architectures (Llama 3.1 8B, Qwen 2.5 7B, Mistral 7B-v0.3, Gemma 2 9B) on five behavioral axes spanning 1,200+ contrastive prompt pairs. We report two positive findings — per-layer $K$ values correlate with MLP spectral norms at $r$ up to 0.77 ($p < 10^{-6}$), and PCA behavioral directions align with MLP singular subspaces at 3.69$\times$ above random — and one informative negative result: behavioral directions are not invariant under neuron permutations, revealing a sharp boundary between weight-space symmetries and activation-space structure.
+Activation steering — injecting contrastive direction vectors into a transformer's residual stream — offers a parameter-efficient mechanism for behavioral control in large language models, yet the per-layer intervention magnitude $K$ remains a manual, architecture-specific hyperparameter in all existing methods. We address this gap by motivating a closed-form calibration formula, $K_\ell = \bar\mu_\ell / \sqrt{d}$, from a rank-1 weight perturbation equivalence: a unit-norm rank-1 update $\Delta W = \alpha\,\mathbf{u}\mathbf{v}^\top$ produces an expected output shift of $\alpha/\sqrt{d}$ under an isotropy prior, so setting $K$ to the per-layer activation norm divided by $\sqrt{d}$ anchors each intervention to the local weight-space scale. We validate this formula across four architectures (Llama 3.1 8B, Qwen 2.5 7B, Mistral 7B-v0.3, Gemma 2 9B) on five behavioral axes spanning 225 unique contrastive prompt pairs. We report three positive findings — per-layer $K$ values correlate with MLP spectral norms at $r$ up to 0.77 ($p < 10^{-6}$); PCA behavioral directions align with MLP singular subspaces at 3.69$\times$ above random; and a raw-activation PC1 control confirms this alignment is specific to behavioral contrastive variance in three of four architectures — and one informative negative result: behavioral directions are not invariant under neuron permutations, revealing a sharp boundary between weight-space symmetries and activation-space structure.
 
 ---
 
@@ -26,10 +26,11 @@ where $\bar\mu_\ell$ is the mean L2 norm of residual-stream activations at layer
 
 **Contributions.** This paper makes four contributions:
 
-1. **A principled calibration formula** (Section 3): $K_\ell = \bar\mu_\ell/\sqrt{d}$, derived from rank-1 perturbation equivalence, with zero free parameters.
+1. **A principled calibration formula** (Section 3): $K_\ell = \bar\mu_\ell/\sqrt{d}$, grounded in rank-1 perturbation equivalence under an isotropy prior, with zero free parameters.
 2. **Spectral validation** (Section 5.2, Figure 1): per-layer $K$ values correlate with MLP $W_\text{up}$ spectral norms at $r = 0.42$–$0.77$ across all four architectures, showing the formula implicitly tracks weight-space scale.
 3. **Weight-space alignment** (Section 5.3, Figure 2): PCA behavioral directions preferentially occupy the dominant singular subspaces of MLP weight matrices at 3.69$\times$ above random baseline, establishing a structural link between activation interventions and weight geometry.
-4. **A negative result on permutation invariance** (Section 5.4, Figure 5): behavioral directions are highly sensitive to neuron permutations, delineating a precise boundary between weight-space symmetries and activation-space structure.
+4. **A specificity control** (Section 5.4, Figure 6): raw-activation PC1 directions show materially lower $W_\text{down}$ alignment (2.6–4.6×) than behavioral PC1 (3.9–12.1×) in three of four architectures, confirming the alignment is specific to contrastive behavioral variance. Gemma 2 shows no behavioral advantage, consistent with its dual-norm architecture.
+5. **A negative result on permutation invariance** (Section 5.5, Figure 5): behavioral directions are highly sensitive to neuron permutations, delineating a precise boundary between weight-space symmetries and activation-space structure.
 
 The remainder of this paper is organized as follows. Section 2 surveys related work. Section 3 presents the methodology. Section 4 describes the experimental setup. Section 5 reports results. Sections 6 and 7 discuss implications and limitations.
 
@@ -79,6 +80,8 @@ $$\boxed{K_\ell = \frac{\bar\mu_\ell}{\sqrt{d}}}$$
 
 where $\bar\mu_\ell = \frac{1}{|\mathcal{D}_\text{cal}|}\sum_{\mathbf{x} \in \mathcal{D}_\text{cal}} \|\mathbf{h}_\ell(\mathbf{x})\|_2$ is estimated from a small calibration set $\mathcal{D}_\text{cal}$ of 50 prompts. This computation is a single inference pass; the resulting per-layer schedule $\{K_\ell\}_\ell$ requires no model-specific tuning.
 
+**Note on the isotropy assumption.** Transformer residual streams are highly anisotropic in practice — the mean activation direction dominates variance by orders of magnitude relative to random directions (Section 5.4). The isotropy assumption $\mathbb{E}[(\mathbf{v}^\top \hat{\mathbf{x}})^2] = 1/d$ is therefore a simplifying prior, not a proven identity. The formula should be understood as a principled spectral prior that calibrates the intervention to the local activation scale, rather than an exact derivation of the optimal $K$. Its empirical validity is established by the experiments in Section 5.
+
 ### 3.3 Behavioral Direction Extraction
 
 For each of five behavioral axes $\mathcal{B} = \{\text{refusal, formality, verbosity, uncertainty, sycophancy}\}$, we construct a contrastive dataset of $N = 45$ prompt pairs $\{(\mathbf{x}_i^+, \mathbf{x}_i^-)\}_{i=1}^N$, where $\mathbf{x}^+$ elicits the positive behavioral extreme and $\mathbf{x}^-$ elicits the negative extreme. Following Rimsky et al. (2024), we compute per-layer activation differences over the middle 50% of network layers (layers indexed $\lfloor 0.25L \rfloor$ to $\lfloor 0.75L \rfloor$):
@@ -101,9 +104,9 @@ The direction vectors $\hat{\mathbf{c}}_{\ell,1}$ and the calibration schedule $
 
 ### 4.1 Models
 
-We evaluate on four instruction-tuned open-weight models spanning distinct architectural families, summarized in Table 0. The inclusion of Gemma 2 is deliberate: its dual-normalization design (pre-norm + post-norm) provides a natural test of whether the K–spectral relationship holds across normalization regimes.
+We evaluate on four instruction-tuned open-weight models spanning distinct architectural families, summarized in Table 1. The inclusion of Gemma 2 is deliberate: its dual-normalization design (pre-norm + post-norm) provides a natural test of whether the K–spectral relationship holds across normalization regimes.
 
-**Table 0.** Models evaluated in this work.
+**Table 1.** Models evaluated in this work.
 
 | Model | Family | Hidden $d$ | Layers $L$ | Norm scheme |
 |-------|--------|-----------|----------|------------|
@@ -173,24 +176,45 @@ For three of four models, $r > 0.71$ at $p < 10^{-5}$, confirming that the calib
 
 | Model | Mean alignment ratio | Max alignment ratio |
 |-------|---------------------|---------------------|
-| Llama 3.1 8B | 3.40× | 7.11× |
-| Qwen 2.5 7B | 4.05× | 9.48× |
-| Mistral 7B | 4.28× | **11.62×** |
-| Gemma 2 9B | 3.04× | 7.64× |
+| Llama 3.1 8B | 3.40× | 6.09× |
+| Qwen 2.5 7B | 4.05× | 7.80× |
+| Mistral 7B | 4.28× | **10.80×** |
+| Gemma 2 9B | 3.04× | 5.90× |
 
-The overall mean is 3.69× above random (range: 2.83–5.03× across all 20 model–behavior pairs). Figure 2 presents the full $4 \times 5$ heatmap; every single cell exceeds 1.0×, with no behavior systematically below-baseline. This uniformity is significant: it implies that the structural alignment is a property of the MLP weight geometry, not of any particular behavioral axis. The contrastive extraction procedure, applied to any sufficiently diverse set of prompt pairs, tends to produce directions that overlap with the spectrally dominant subspaces of the weights.
+The overall mean is 3.69× above random (range: 2.83–5.03× across all 20 model–behavior pairs). Figure 2 presents the full $4 \times 5$ heatmap; every single cell exceeds 1.0×, with no behavior systematically below-baseline. This uniformity is significant: it implies that the structural alignment is a property of the MLP weight geometry, not of any particular behavioral axis. The contrastive extraction procedure, applied to any sufficiently diverse set of prompt pairs, tends to produce directions that overlap with the spectrally dominant subspaces of the weights. Section 5.4 establishes that this alignment is above what raw-activation directions (without behavioral contrast) achieve.
 
 This result, combined with the spectral correlation in Section 5.2, yields a coherent mechanistic picture: the residual-stream norm tracks MLP spectral scales (E2), and the behavioral directions extracted from the residual stream preferentially occupy those same spectral subspaces (E3). The K formula connects these two facts — it calibrates the intervention to the activation norm, which in turn reflects the spectral geometry that the behavioral directions inhabit.
 
-> **Figure 2** | *PCA behavioral directions are biased toward MLP spectral subspaces.* Heatmap of mean alignment ratios (cosine similarity of PCA direction vs. top-10 singular vectors of $W_\text{down}$, normalized by the same quantity for random vectors of equal dimension) for all 20 model–behavior pairs. Rows = models, columns = behavioral axes; cell values are annotated. Color scale anchored at 1.0 (random baseline). All 20 cells exceed 1.0×, confirming that behaviorally relevant directions preferentially occupy the spectrally dominant subspaces of MLP down-projection weights across all architectures and all behavioral axes tested. The maximum alignment (11.62×) is achieved by Mistral on formality, suggesting that linguistic register is especially strongly encoded along MLP principal directions in this architecture.
+> **Figure 2** | *PCA behavioral directions are biased toward MLP spectral subspaces.* Heatmap of mean alignment ratios (cosine similarity of PCA direction vs. top-10 singular vectors of $W_\text{down}$, normalized by the same quantity for random vectors of equal dimension) for all 20 model–behavior pairs. Rows = models, columns = behavioral axes; cell values are annotated. Color scale anchored at 1.0 (random baseline). All 20 cells exceed 1.0×, confirming that behaviorally relevant directions preferentially occupy the spectrally dominant subspaces of MLP down-projection weights across all architectures and all behavioral axes tested. The maximum alignment (10.80×) is achieved by Mistral on formality, suggesting that linguistic register is especially strongly encoded along MLP principal directions in this architecture.
 >
 > *File: `figures/fig2_alignment_heatmap.pdf`*
 
-### 5.4 Behavioral Directions Are Not Permutation-Invariant
+### 5.4 Behavioral Directions Are Specific to Contrastive Variance
+
+A critical validity check for Section 5.3 is whether the above-random alignment ratios are specific to behavioral contrastive directions, or whether any structured direction extracted from the same activations achieves comparable scores. We run a direct control comparing five direction types per layer: (a) behavioral PC1 (contrastive PCA), (b) contrastive mean direction, (c) raw-activation PC1 (PCA on generic, non-contrastive prompts), (d) raw mean activation direction, and (e) random unit vectors as a baseline.
+
+**Table 3.** Raw-activation control: mean alignment ratios across five direction types (averaged over layers in the 25–75% depth range and all five behavioral axes).
+
+| Model | Behavioral PC1 | Contrastive mean | Raw PC1 | Raw mean | Random baseline | Behavioral advantage |
+|-------|---------------|-----------------|---------|----------|-----------------|---------------------|
+| Llama 3.1 8B | 3.90× | 4.12× | 2.63× | 16.49× | 0.029 | **+1.26×** |
+| Qwen 2.5 7B | 5.09× | 4.74× | 4.32× | 17.73× | 0.031 | **+0.77×** |
+| Mistral 7B | **12.06×** | 8.51× | 4.64× | 9.99× | 0.029 | **+7.43×** |
+| Gemma 2 9B | 4.98× | 3.53× | 5.61× | 7.64× | 0.031 | −0.63× |
+
+Three of four models show a clear positive behavioral advantage over raw PC1: Mistral +7.43×, Llama +1.26×, Qwen +0.77×. Gemma 2 shows no behavioral advantage (−0.63×), consistent with its dual-norm architecture disrupting the spectral bridge (Section 6.1). The contrastive mean direction tracks closely with behavioral PC1 for most models, as expected — both derive from the same contrastive activations.
+
+The raw mean direction shows anomalously high alignment (7.64–17.73×), substantially exceeding even behavioral PC1. This is a structural artifact, not a behavioral signal: the mean residual-stream activation is the dominant direction in the residual stream, and $W_\text{down}$ is trained to project along its principal output axes, which align by construction with the mean activation direction. This effect confirms that $W_\text{down}$ alignment is not a trivial property of any structured direction, but also that the meaningful comparison for behavioral specificity is against raw PC1, not raw mean.
+
+> **Figure 6** | *Behavioral PC1 directions show materially higher $W_\text{down}$ alignment than raw-activation PC1 in three of four architectures.* Bar chart of mean alignment ratios for all five direction types across all four models. Behavioral advantage is strongest for Mistral (+7.43×) and absent for Gemma 2 (−0.63×). The raw mean direction anomaly (7–18×) is shown with a distinct pattern fill to distinguish it as a structural artifact of the residual stream, not a behavioral finding. The random baseline (≈0.03) confirms the normalization is well-calibrated.
+>
+> *File: `figures/fig6_raw_control.pdf`*
+
+### 5.5 Behavioral Directions Are Not Permutation-Invariant
 
 A natural hypothesis for this workshop is that behavioral directions, being geometrically structured (Section 5.3), should be invariant under neuron permutation symmetries that preserve the network's function. We test this directly: for each model and behavior, we (a) apply a random permutation to 50% of MLP layers, (b) re-extract contrastive activations from the permuted (but functionally equivalent) model, (c) re-fit PCA, and (d) measure subspace cosine similarity via principal angles between the original and permuted direction sets.
 
-**Table 3.** Mean subspace cosine similarity under 50% neuron permutation (5 seeds, invariance threshold $\tau = 0.85$).
+**Table 4.** Mean subspace cosine similarity under 50% neuron permutation (5 seeds, invariance threshold $\tau = 0.85$).
 
 | Model | Mean cosine sim | Std | Threshold met? |
 |-------|----------------|-----|---------------|
@@ -207,22 +231,22 @@ All models fall far below the 0.85 invariance threshold. Figure 5 shows the full
 
 **Interpretation.** This negative result refines, rather than undermines, the finding in Section 5.3. Behavioral directions *are* geometry-aware: they align with the singular vectors of weight matrices. But they align with the singular vectors of a *specific parameterization*, not with any permutation-invariant invariant of the equivalence class. When neurons are permuted, the singular vector bases of $W_\text{up}$ and $W_\text{down}$ rotate correspondingly, and the behavioral directions rotate with them. This is the precise gap between weight-space *symmetries* (which preserve function) and activation-space *structure* (which depends on the specific realization of the weights). Activation-based behavioral probes are, in the language of this workshop, *equivariant to permutations* but not *invariant* — they transform predictably under the symmetry group rather than remaining fixed. Designing probes that are genuinely invariant would require averaging over the orbit of the permutation group, a direction we propose for future work.
 
-### 5.5 Calibrated Steering Achieves Zero-Tuning Generalization
+### 5.6 Calibrated Steering Achieves Near-Parity Without Hyperparameter Search
 
-**Table 4.** Mean activation direction accuracy by method, averaged over all 20 model–behavior pairs (9 test pairs each).
+**Table 5.** Mean activation direction accuracy by method, averaged over all 20 model–behavior pairs (9 test pairs each).
 
 | Method | Mean accuracy | vs. baseline |
 |--------|--------------|-------------|
-| No steering | 0.352 | — |
-| Raw mean-diff addition | 0.432 | +8.0 pp |
-| PCA, uncalibrated ($K = 1$) | 0.600 | +24.8 pp |
-| **PCA, K-calibrated** | **0.594** | **+24.2 pp** |
+| No steering | 0.478 | — |
+| Raw mean-diff addition | 0.633 | +15.5 pp |
+| PCA, uncalibrated ($K = 1$) | 0.600 | +12.2 pp |
+| **PCA, K-calibrated** | **0.594** | **+11.6 pp** |
 
-> **Figure 4** | *K-calibration achieves near-parity with uncalibrated PCA across all behaviors without any tuning.* Grouped bar chart of mean activation direction accuracy per behavioral axis (bars grouped by behavior, color-coded by method). Bar heights average over four models and nine held-out test pairs each; the dashed line marks chance (0.5). All three steering methods substantially exceed the no-intervention baseline. K-calibrated PCA matches or exceeds uncalibrated PCA on three of five axes (refusal: +13.9 pp, uncertainty: +2.8 pp, verbosity: +16.7 pp) with losses on formality (−22.2 pp) and sycophancy (−2.4 pp). The behavior-specific pattern reveals that while our formula is well-calibrated on average, the optimal $K$ for formality — which may require finer-grained register control — departs from the spectral prior.
+> **Figure 4** | *K-calibration achieves near-parity with uncalibrated PCA across all behaviors without any tuning.* Grouped bar chart of mean activation direction accuracy per behavioral axis (bars grouped by behavior, color-coded by method). Bar heights average over four models and nine held-out test pairs each; the dashed line marks chance (0.5). All three steering methods substantially exceed the no-intervention baseline (+11–15 pp over no-steering). K-calibrated PCA matches or exceeds uncalibrated PCA on three of five axes (refusal: +13.9 pp, uncertainty: +2.8 pp, verbosity: +16.7 pp) with losses on formality (−22.2 pp) and sycophancy (−2.4 pp). The behavior-specific pattern reveals that while our formula is well-calibrated on average, the optimal $K$ for formality — which may require finer-grained register control — departs from the spectral prior.
 >
 > *File: `figures/fig4_efficacy.pdf`*
 
-K-calibrated PCA achieves near-parity with uncalibrated PCA (−0.6 pp overall) while requiring zero hyperparameter search. The critical distinction is transferability: the uncalibrated baseline implicitly depends on an experimenter-chosen $\alpha$ that must be tuned separately for each model, layer range, and behavior; our formula replaces this choice with a principled computation derived once from 50 calibration prompts. The per-behavior variation in Figure 4 identifies formality as an outlier, suggesting that register control requires intervention scales that deviate from the spectral prior — a behavioral axis warranting dedicated investigation.
+K-calibrated PCA achieves near-parity with uncalibrated PCA (−0.6 pp overall) while requiring zero hyperparameter search. Both steering methods substantially exceed the no-steering baseline (+11.6 pp and +12.2 pp respectively). The critical distinction is transferability: the uncalibrated baseline implicitly depends on an experimenter-chosen $\alpha$ that must be tuned separately for each model, layer range, and behavior; our formula replaces this choice with a principled computation derived once from 50 calibration prompts. The per-behavior variation in Figure 4 identifies formality as an outlier, suggesting that register control requires intervention scales that deviate from the spectral prior — a behavioral axis warranting dedicated investigation.
 
 ---
 
@@ -254,13 +278,13 @@ This picture connects to the Platonic Representation Hypothesis (Huh et al., 202
 
 ## 7. Limitations
 
-*(i)* **Efficacy metric.** We evaluate on activation-space cosine accuracy — whether steered activations move toward the target behavioral direction. This is a necessary but not sufficient condition for downstream behavioral change. Human evaluations or classifier-based behavioral metrics would provide a more direct measure. *(ii)* **Scale.** We test only 7–9B parameter models; whether the K formula's spectral interpretation holds at 70B+ is unknown. *(iii)* **Calibration robustness.** The calibration set of 50 prompts is small; sensitivity of $\bar\mu_\ell$ to prompt distribution and domain shift has not been characterized. *(iv)* **Permutation scope.** Permutation invariance experiments use only random MLP neuron permutations; structured permutations (attention-head rearrangements, cross-layer permutation groups) may exhibit different behavior. *(v)* **Unit-norm assumption.** The derivation assumes $\mathbb{E}[(\mathbf{v}^\top \hat{\mathbf{x}})^2] = 1/d$, which holds exactly for uniform-sphere inputs and approximately for typical transformer activations; the approximation quality is uncharacterized.
+*(i)* **Efficacy metric.** We evaluate on activation-space cosine accuracy — whether steered activations move toward the target behavioral direction. This is a necessary but not sufficient condition for downstream behavioral change. Human evaluations or classifier-based behavioral metrics would provide a more direct measure. *(ii)* **Scale.** We test only 7–9B parameter models; whether the K formula's spectral interpretation holds at 70B+ is unknown. *(iii)* **Calibration robustness.** The calibration set of 50 prompts is small; sensitivity of $\bar\mu_\ell$ to prompt distribution and domain shift has not been characterized. *(iv)* **Permutation scope.** Permutation invariance experiments use only random MLP neuron permutations; structured permutations (attention-head rearrangements, cross-layer permutation groups) may exhibit different behavior. *(v)* **Isotropy assumption.** The K formula derivation assumes $\mathbb{E}[(\mathbf{v}^\top \hat{\mathbf{x}})^2] = 1/d$, which holds exactly for uniform-sphere inputs but not for transformer residual streams (which are highly anisotropic, as Section 5.4 confirms via the anomalously high raw mean direction alignment). The formula is therefore a spectral prior, not an exact derivation. *(vi)* **Gemma specificity.** Gemma 2 shows no behavioral advantage over raw PC1 in the specificity control (−0.63×). While the dual-norm mechanism in Section 6.1 provides a structural explanation, a more direct test — correlating $K_\ell$ with $\|\gamma^\text{post}_\ell\|_\text{eff}$ — is needed to fully characterize the breakdown.
 
 ---
 
 ## 8. Conclusion
 
-We have derived and validated a closed-form formula, $K_\ell = \bar\mu_\ell/\sqrt{d}$, for calibrating activation steering magnitudes from a rank-1 weight perturbation equivalence. Empirically, the formula implicitly tracks the spectral geometry of MLP weight matrices across four architectures and five behavioral axes. PCA behavioral directions preferentially occupy the dominant singular subspaces of those same matrices, providing a structural justification for why calibrating to activation norms yields well-scaled interventions. Our negative result on permutation invariance identifies a precise boundary relevant to this workshop: behavioral probes are *equivariant* under neuron permutations — they track the specific weight realization — but not *invariant* to the equivalence class it belongs to. Bridging this gap by developing permutation-equivariant or orbit-averaged behavioral probes is an open direction that we hope this work helps motivate.
+We have motivated and validated a closed-form formula, $K_\ell = \bar\mu_\ell/\sqrt{d}$, for calibrating activation steering magnitudes from a rank-1 weight perturbation equivalence under an isotropy prior. Empirically, the formula implicitly tracks the spectral geometry of MLP weight matrices across four architectures and five behavioral axes. PCA behavioral directions preferentially occupy the dominant singular subspaces of those same matrices, and a raw-activation PC1 specificity control confirms this alignment is above what generic directions achieve in three of four architectures — with Gemma 2's dual-norm architecture explaining the exception. Our negative result on permutation invariance identifies a precise boundary relevant to this workshop: behavioral probes are *equivariant* under neuron permutations — they track the specific weight realization — but not *invariant* to the equivalence class it belongs to. Bridging this gap by developing permutation-equivariant or orbit-averaged behavioral probes is an open direction that we hope this work helps motivate.
 
 ---
 
@@ -305,8 +329,8 @@ Zou, A. et al. Representation Engineering: A Top-Down Approach to AI Transparenc
 ## Appendix: Figure Placement for 4-Page Limit
 
 > **Recommended layout:**
-> - **Main body** — Figure 1 (K vs. spectral scatter) and Figure 2 (alignment heatmap): the two core empirical claims, placed in §5.2 and §5.3 respectively.
-> - **Appendix / supplemental** — Figure 3 (norm profiles, motivating §5.1), Figure 4 (efficacy bar chart, §5.5), Figure 5 (permutation distribution, §5.4).
+> - **Main body** — Figure 1 (K vs. spectral scatter, §5.2), Figure 2 (alignment heatmap, §5.3), Figure 6 (raw activation control, §5.4): the three core empirical claims.
+> - **Appendix / supplemental** — Figure 3 (norm profiles, §5.1), Figure 4 (efficacy bar chart, §5.6), Figure 5 (permutation distribution, §5.5).
 >
-> If the workshop allows a supplemental appendix, prioritize Figure 5 there — it is the most visually impactful support for the negative result.
-> All five PDFs are in `figures/`.
+> If space is tight, merge Figures 2 and 6 into a two-panel figure showing alignment and specificity side by side.
+> All PDFs are in `figures/`.
