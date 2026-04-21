@@ -1,0 +1,27 @@
+2026-04-21 18:37:58,107 | INFO     | __main__ | Loaded norm profile: 42 layers from /home/ubuntu/norms-k-calibration/results/norm_profiles/gemma.csv
+2026-04-21 18:37:58,108 | INFO     | __main__ | Loading model google/gemma-2-9b-it on cuda …
+2026-04-21 18:38:58,489 | INFO     | __main__ | Model loaded.  Extracting per-layer norms …
+2026-04-21 18:41:14,726 | INFO     | __main__ | 
+============================================================
+2026-04-21 18:41:14,727 | INFO     | __main__ | Pearson r between K_ℓ and …
+2026-04-21 18:41:14,727 | INFO     | __main__ | ============================================================
+2026-04-21 18:41:14,731 | INFO     | __main__ |   ||γ_post_MLP||                            r = +0.940  (p = 2.78e-20)
+2026-04-21 18:41:14,734 | INFO     | __main__ |   ||γ_post_attn||                           r = +0.850  (p = 1.03e-12)
+2026-04-21 18:41:14,736 | INFO     | __main__ |   ||γ_post_MLP|| + ||γ_post_attn||          r = +0.919  (p = 9.80e-18)
+2026-04-21 18:41:14,739 | INFO     | __main__ |   cumulative combined scale                 r = +0.960  (p = 9.38e-24)
+2026-04-21 18:41:14,742 | INFO     | __main__ |   σ₁(W_up)                                  r = +0.421  (p = 5.45e-03)
+2026-04-21 18:41:14,744 | INFO     | __main__ | Per-layer CSV → /home/ubuntu/norms-k-calibration/results/gemma_postnorm/gemma_per_layer.csv
+2026-04-21 18:41:14,744 | INFO     | __main__ | Correlations JSON → /home/ubuntu/norms-k-calibration/results/gemma_postnorm/gemma_correlations.json
+2026-04-21 18:41:14,744 | INFO     | __main__ | 
+======================================================================
+2026-04-21 18:41:14,744 | INFO     | __main__ | SUMMARY: K_ℓ correlations for google/gemma-2-9b-it
+2026-04-21 18:41:14,744 | INFO     | __main__ | Variable                                       Pearson r  p-value
+2026-04-21 18:41:14,744 | INFO     | __main__ | ----------------------------------------------------------------------
+2026-04-21 18:41:14,744 | INFO     | __main__ |   ||γ_post_MLP||                               +0.940    2.78e-20
+2026-04-21 18:41:14,744 | INFO     | __main__ |   ||γ_post_attn||                              +0.850    1.03e-12
+2026-04-21 18:41:14,744 | INFO     | __main__ |   ||γ_post_MLP|| + ||γ_post_attn||             +0.919    9.80e-18
+2026-04-21 18:41:14,744 | INFO     | __main__ |   cumulative combined scale                    +0.960    9.38e-24
+2026-04-21 18:41:14,745 | INFO     | __main__ |   σ₁(W_up)                                     +0.421    5.45e-03
+2026-04-21 18:41:14,745 | INFO     | __main__ | ======================================================================
+2026-04-21 18:41:14,745 | INFO     | __main__ | RESULT: cumulative γ_post scale (r=0.960) explains K_ℓ better than σ₁(W_up) (r=0.421) — confirms the dual-norm theory.
+2026-04-21 18:41:14,824 | INFO     | __main__ | Experiment 09 complete.
