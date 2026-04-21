@@ -87,9 +87,9 @@ This formula calibrates the intervention to spectral geometry without weight acc
 
 ## 4. Experimental Setup
 
-**Models.** Four instruction-tuned architectures spanning distinct normalization regimes (Table 0).
+**Models.** Four instruction-tuned architectures spanning distinct normalization regimes (Table 1).
 
-**Table 0.** Models evaluated.
+**Table 1.** Models evaluated.
 
 | Model | Family | $d$ | Layers | Normalization |
 |-------|--------|-----|--------|---------------|
@@ -165,7 +165,7 @@ Behavioral PC1 outperforms raw PC1 in three of four models. Mistral shows the st
 | Mistral 7B | 0.160 ± 0.123 | 1.000 (trivial) | No |
 | Gemma 2 9B | 0.412 ± 0.181 | 1.000 (trivial) | No |
 
-*Note: prior reports mixing permuted and unpermuted layers inflated means; the permuted-only figures above are the meaningful measurement.*
+*Note: an earlier version of this experiment averaged over permuted and unpermuted layers together, inflating the reported means; the permuted-layer-only figures above are the correct, interpretable measurement.*
 
 > **Figure 5** | *Behavioral directions rotate with the weights — they are equivariant, not invariant.* Box-and-whisker plots of subspace cosine similarity for *permuted layers only*, each model aggregated over 5 behaviors and 5 seeds. The red dashed line marks the 0.85 invariance threshold. All distributions sit near zero, confirming that re-fitting PCA after a neuron permutation produces directions unrelated to the originals. The small positive mean for Gemma 2 (0.41) reflects partial decoupling from permutation due to post-norm renormalization (Section 6.3).
 >
@@ -200,7 +200,7 @@ For three of four models, $r > 0.71$ ($p < 10^{-5}$). Figure 1 visualizes the pe
 
 ### 5.5 Practical Corollary: Calibration-Free Steering
 
-The spectral proxy (Section 5.4) has a direct practical consequence: setting $K_\ell = \bar\mu_\ell/\sqrt{d}$ calibrates behavioral steering to spectral geometry without weight access. Across all 20 model–behavior pairs, K-calibrated PCA achieves 0.594 mean activation direction accuracy vs. 0.600 for uncalibrated PCA — near-parity with zero hyperparameter tuning, compared to the 0.478 no-steering baseline (+11.6 pp). Full results appear in the companion paper (weight-space symmetries submission); we note the result here to ground the mechanistic claim that the spectral proxy is actionable.
+The spectral proxy (Section 5.4) has a direct practical consequence: setting $K_\ell = \bar\mu_\ell/\sqrt{d}$ calibrates behavioral steering to spectral geometry without weight access. Across all 20 model–behavior pairs, K-calibrated PCA achieves 0.594 mean activation direction accuracy vs. 0.600 for uncalibrated PCA — near-parity with zero hyperparameter tuning, compared to the 0.478 no-steering baseline (+11.6 pp). We note this result here to ground the mechanistic claim that the spectral proxy is actionable: understanding where behaviors live in the weights yields a directly usable calibration without any additional tuning.
 
 ---
 
@@ -222,13 +222,21 @@ The permutation equivariance result draws a precise line around the validity of 
 
 Designing behavioral probes that are functional-class invariants — rather than parameterization-specific measurements — is an open problem that our results help sharpen.
 
-### 6.3 Gemma 2: When Post-Norm Breaks the Spectral Proxy
+### 6.3 Gemma 2: When Post-Norm Generalizes the Alignment
 
-Gemma 2's weaker K–spectral correlation ($r = 0.42$ vs. $r > 0.71$) is explained by its dual-normalization scheme. In pre-norm transformers, the spectral proxy holds because each sublayer increment has magnitude $\sim \sigma_1(W_\ell) \cdot \sqrt{d}$. In Gemma 2:
+Gemma 2 presents an apparent paradox: Table 1 shows behavioral directions at 3.04× alignment with $W_\text{down}$ SVs (above random, consistent with the main claim), yet Table 2 shows raw PC1 alignment at 5.61× — *exceeding* behavioral PC1 (4.98×), eliminating any behavioral specificity. Both observations are real and mechanistically consistent; the tension is resolved by understanding what the post-norm does to the residual stream.
 
-$$x_{\ell+1} = x_\ell + \underbrace{\text{RMSNorm}_\text{post}}_{\text{magnitude-clips}}\!\left(F\!\left(\text{RMSNorm}_\text{pre}(x_\ell)\right)\right)$$
+In pre-norm transformers, the spectral proxy holds because each sublayer increment has magnitude $\sim \sigma_1(W_\ell) \cdot \sqrt{d}$:
 
-The post-sublayer RMSNorm bounds the increment magnitude to $\|\gamma^\text{post}_\ell\|_\text{eff} \cdot \sqrt{d}$, independent of $\sigma_1(W_\ell)$. This architecture — related to DeepNorm (Wang et al., 2022) — effectively decouples the residual stream from weight spectral structure, replacing it with a norm governed by learned scale parameters. The spectral constraint on behavioral directions (Section 5.1) remains, but the activation norm is no longer a reliable proxy for spectral scale. This motivates a follow-up: for dual-norm architectures, direct correlation of $K_\ell$ with $\|\gamma^\text{post}_\ell\|_\text{eff}$ may recover the missing spectral proxy.
+$$x_{\ell+1} = x_\ell + F\!\left(\text{RMSNorm}_\text{pre}(x_\ell)\right)$$
+
+The post-sublayer RMSNorm in Gemma 2 bounds *every* increment to $\|\gamma^\text{post}_\ell\|_\text{eff} \cdot \sqrt{d}$, independent of $\sigma_1(W_\ell)$:
+
+$$x_{\ell+1} = x_\ell + \underbrace{\text{RMSNorm}_\text{post}}_{\text{clips to }\|\gamma^\text{post}\|\cdot\sqrt{d}}\!\left(F\!\left(\text{RMSNorm}_\text{pre}(x_\ell)\right)\right)$$
+
+The consequence is that the residual stream accumulates equal-magnitude increments from all sublayers. This produces a residual stream whose dominant directions are aligned with the *cumulative mean* of all sublayer outputs — which is, by construction, a direction $W_\text{down}$ writes along heavily. The raw PC1 of Gemma 2 activations therefore strongly aligns with $W_\text{down}$ SVs not because it carries behavioral signal, but because the post-norm architecture makes *any* structured direction from the residual stream a strong proxy for $W_\text{down}$'s output space. The behavioral signal is present (3.04× > 1.0) but does not stand out above this elevated architectural baseline.
+
+The claim for Gemma 2 is therefore precisely: behavioral directions align with $W_\text{down}$ spectral structure, but so does every other structured direction extracted from its residual stream. This is not a failure of the spectral constraint — it is the spectral constraint operating on an architecture where it is non-specific. The three pre-norm architectures provide the specificity evidence; Gemma 2 demonstrates what happens when that specificity mechanism is removed. A direct test of whether $K_\ell$ correlates more strongly with $\|\gamma^\text{post}_\ell\|_\text{eff}$ than with $\sigma_1(W_\ell)$ would confirm this mechanistic account (Section 7, item i).
 
 ---
 

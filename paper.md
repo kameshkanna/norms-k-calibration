@@ -193,7 +193,7 @@ This result, combined with the spectral correlation in Section 5.2, yields a coh
 
 A critical validity check for Section 5.3 is whether the above-random alignment ratios are specific to behavioral contrastive directions, or whether any structured direction extracted from the same activations achieves comparable scores. We run a direct control comparing five direction types per layer: (a) behavioral PC1 (contrastive PCA), (b) contrastive mean direction, (c) raw-activation PC1 (PCA on generic, non-contrastive prompts), (d) raw mean activation direction, and (e) random unit vectors as a baseline.
 
-**Table 3.** Raw-activation control: mean alignment ratios across five direction types (averaged over layers in the 25–75% depth range and all five behavioral axes).
+**Table 3.** Raw-activation control: mean alignment ratios across five direction types (averaged over all layers in the 25–75% depth range and all five behavioral axes). Note: values here are means over layers, whereas Table 2 reports the single highest-layer max ratio; the two are not directly comparable — Mistral's per-layer mean (12.06× behavioral PC1 here) exceeds the max-over-behaviors in Table 2 (10.80×) because Table 2 reports max over behaviors averaged across layers, while Table 3 averages both.
 
 | Model | Behavioral PC1 | Contrastive mean | Raw PC1 | Raw mean | Random baseline | Behavioral advantage |
 |-------|---------------|-----------------|---------|----------|-----------------|---------------------|
@@ -246,27 +246,29 @@ All models fall far below the 0.85 invariance threshold. Figure 5 shows the full
 >
 > *File: `figures/fig4_efficacy.pdf`*
 
-K-calibrated PCA achieves near-parity with uncalibrated PCA (−0.6 pp overall) while requiring zero hyperparameter search. Both steering methods substantially exceed the no-steering baseline (+11.6 pp and +12.2 pp respectively). The critical distinction is transferability: the uncalibrated baseline implicitly depends on an experimenter-chosen $\alpha$ that must be tuned separately for each model, layer range, and behavior; our formula replaces this choice with a principled computation derived once from 50 calibration prompts. The per-behavior variation in Figure 4 identifies formality as an outlier, suggesting that register control requires intervention scales that deviate from the spectral prior — a behavioral axis warranting dedicated investigation.
+Raw mean-diff addition scores highest (0.633) among all methods, which requires an explanation. The raw mean-diff vector retains its full, unnormalized contrastive norm — typically 5–20× larger than the K-calibrated unit-norm direction — and the activation direction accuracy metric rewards any shift toward the target direction regardless of magnitude. A larger steering push therefore produces higher cosine accuracy even if the direction is less precisely estimated. This is a metric sensitivity to magnitude, not evidence that raw mean-diff is a superior direction: the metric measures whether the steered residual stream moves toward the behavioral axis, not whether it does so at a principled scale. PCA K-calibrated achieves 0.594 — comparable to uncalibrated PCA (0.600) — with a unit-norm direction at principled scale, representing a more controlled intervention appropriate for deployment where over-steering risks degenerate outputs. Both K-calibrated and uncalibrated PCA substantially exceed the no-steering baseline (+11.6 pp and +12.2 pp). The critical distinction is transferability: the uncalibrated baseline implicitly depends on an experimenter-chosen $\alpha$ that must be tuned separately for each model, layer range, and behavior; our formula replaces this choice with a principled computation derived once from 50 calibration prompts. The per-behavior variation in Figure 4 identifies formality as an outlier, suggesting that register control requires intervention scales that deviate from the spectral prior — a behavioral axis warranting dedicated investigation.
 
 ---
 
 ## 6. Discussion
 
-### 6.1 Why Gemma 2 Breaks the Spectral Bridge
+### 6.1 Why Gemma 2 Breaks the Spectral Bridge — and Why That Is Informative
 
-The K–spectral correlation drops from $r > 0.71$ for Llama/Qwen/Mistral to $r = 0.42$ for Gemma 2. We attribute this to Gemma 2's dual-normalization scheme, which differs structurally from all three other architectures. In a standard pre-norm transformer:
+Two Gemma 2 results appear in tension. Table 2 shows behavioral directions aligning with $W_\text{down}$ SVs at 3.04× — consistent with the spectral constraint. Table 3 shows raw PC1 aligning at 5.61×, exceeding behavioral PC1 (4.98×) — eliminating behavioral specificity. We argue both observations follow from a single architectural mechanism, and that their co-occurrence strengthens rather than weakens the theory.
+
+The K–spectral correlation also drops from $r > 0.71$ to $r = 0.42$ for Gemma 2. All three anomalies share a root cause: Gemma 2's dual-normalization scheme. In a standard pre-norm transformer:
 
 $$x_{\ell+1}^{\text{(pre-norm)}} = x_\ell + F\!\left(\text{RMSNorm}_\text{pre}(x_\ell)\right)$$
 
-the sublayer output is added directly to the residual stream. The increment magnitude is approximately $\sigma_1(W_\ell) \cdot \sqrt{d}$, so the cumulative norm $\bar\mu_\ell$ integrates spectral scales across layers and $K_\ell$ serves as a spectral proxy.
-
-In Gemma 2 (Gemma Team, 2024), each sublayer output is renormalized before the residual addition:
+the increment magnitude is $\sim \sigma_1(W_\ell) \cdot \sqrt{d}$, so the residual stream integrates spectral scales. The dominant residual direction is behaviorally inflected because the weights selectively amplify behavioral variance. In Gemma 2:
 
 $$x_{\ell+1}^{\text{(Gemma 2)}} = x_\ell + \text{RMSNorm}_\text{post}\!\left(F\!\left(\text{RMSNorm}_\text{pre}(x_\ell)\right)\right)$$
 
-Since $\|\text{RMSNorm}_\text{post}(\mathbf{u})\|_2 \approx \|\gamma^\text{post}_\ell\|_\text{eff} \cdot \sqrt{d}$ *independently of $\|\mathbf{u}\|_2$*, the residual increment is decoupled from the spectral norm of $W_\ell$ and instead governed by the learned scale parameter $\gamma^\text{post}_\ell$. This mechanism is structurally analogous to DeepNorm (Wang et al., 2022), which explicitly bounds residual-stream update magnitudes for stable deep-network training. The consequence for our formula is that $\bar\mu_\ell$ reflects accumulated $\|\gamma^\text{post}_\ell\|_\text{eff}$ values rather than integrated spectral scales — hence the weaker K–spectral correlation.
+The post-sublayer RMSNorm clips every increment to $\|\gamma^\text{post}_\ell\|_\text{eff} \cdot \sqrt{d}$ regardless of the sublayer's spectral scale. All sublayers contribute equal-magnitude increments; the residual stream's dominant direction accumulates from the *mean* of all sublayer contributions. This mean direction is strongly aligned with $W_\text{down}$ SVs by construction — so raw PC1 (the dominant residual direction) shows high $W_\text{down}$ alignment independent of any behavioral signal. Behavioral directions are above random (3.04×) but cannot be distinguished from raw directions because the architectural baseline is elevated.
 
-Two points mitigate this concern. First, the K formula remains empirically valid as a calibration heuristic for Gemma 2: efficacy results show comparable accuracy across all four architectures, because $K_\ell$ still correctly measures the effective perturbation scale in the residual stream, regardless of whether that scale originates from weight spectra or learned normalization parameters. Second, the $r = 0.42$ correlation remains statistically significant ($p < 0.006$), suggesting that $\gamma^\text{post}$ parameters may co-adapt with weight spectral scales during training, preserving a partial spectral trace. We propose as future work a direct analysis of whether $K_\ell$ correlates more strongly with $\|\gamma^\text{post}_\ell\|_\text{eff}$ than with $\sigma_1(W_\ell)$ in dual-norm architectures — a test that would unify the K formula across normalization regimes.
+This is precisely what the theory predicts: the spectral bridge requires that the residual stream's geometry tracks weight spectra — and Gemma 2's post-norm breaks this tracking. The three pre-norm architectures show both alignment (3.40–4.28×) and specificity (behavioral advantage +0.77 to +7.43×). Gemma 2 shows alignment without specificity, confirming that specificity depends on the spectral bridge that post-norm disrupts.
+
+The practical consequence: the K formula remains empirically valid as a calibration heuristic for Gemma 2 because $K_\ell$ correctly measures the effective perturbation scale (governed by $\|\gamma^\text{post}_\ell\|_\text{eff}$ rather than $\sigma_1(W_\ell)$). The $r = 0.42$ correlation ($p < 0.006$) suggests $\gamma^\text{post}$ parameters may partially co-adapt with weight spectral scales. A direct correlation of $K_\ell$ with $\|\gamma^\text{post}_\ell\|_\text{eff}$ — a pending follow-up — would determine whether the spectral bridge can be recovered for dual-norm architectures by replacing $\sigma_1(W_\ell)$ with the post-norm scale.
 
 ### 6.2 The K Formula as a Spectral Bridge
 
