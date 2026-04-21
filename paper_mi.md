@@ -116,9 +116,9 @@ All experiments use seed 42. Spectral norms computed via exact SVD in float32 on
 
 ### 5.1 Behavioral Directions Are Spectrally Constrained
 
-PCA directions extracted from contrastive activations are not generic residual-stream vectors. Table 1 and Figure 2 show that behavioral directions align with the dominant right singular vectors of MLP $W_\text{down}$ at 3.04–4.28× above random across all four architectures, with a mean of **3.69×** (maximum: **10.80×**, Mistral, formality). This effect is consistent across all 20 model–behavior combinations (range: 2.83–5.03×): every cell in Figure 2's heatmap exceeds the random baseline, with no behavior or model as an outlier.
+PCA directions extracted from contrastive activations are not generic residual-stream vectors. Table 2 and Figure 2 show that behavioral directions align with the dominant right singular vectors of MLP $W_\text{down}$ at 3.04–4.28× above random across all four architectures, with a mean of **3.69×** (maximum: **10.80×**, Mistral, formality). This effect is consistent across all 20 model–behavior combinations (range: 2.83–5.03×): every cell in Figure 2's heatmap exceeds the random baseline, with no behavior or model as an outlier.
 
-**Table 1.** Mean and maximum alignment ratios (PCA direction vs. top-10 right singular vectors of $W_\text{down}$), with layer-resolved peak.
+**Table 2.** Mean and maximum alignment ratios (PCA direction vs. top-10 right singular vectors of $W_\text{down}$), with layer-resolved peak.
 
 | Model | Mean ratio | Max ratio | Peak layer | Early (0–25%) | Late (75–100%) |
 |-------|-----------|-----------|-----------|--------------|---------------|
@@ -137,7 +137,7 @@ PCA directions extracted from contrastive activations are not generic residual-s
 
 ### 5.2 Behavioral Directions Are Specific to Contrastive Variance
 
-**Table 2.** Raw-activation control: mean alignment ratios for five direction types (averaged over layers in the 25–75% depth range and all five behavioral axes).
+**Table 3.** Raw-activation control: mean alignment ratios for five direction types (averaged over layers in the 25–75% depth range and all five behavioral axes).
 
 | Model | Behavioral PC1 | Contrastive mean | Raw PC1 | Raw mean | Random baseline | Behavioral advantage |
 |-------|---------------|-----------------|---------|----------|-----------------|---------------------|
@@ -156,7 +156,7 @@ Behavioral PC1 outperforms raw PC1 in three of four models. Mistral shows the st
 
 **This result is a direct prediction of Section 5.1.** If behavioral directions align with the right singular vectors $V$ of $W_\text{down}$, and if neuron permutations transform the right singular basis as $V \to PV$ (where $P$ is the permutation matrix applied to $W_\text{down}$ rows), then behavioral directions must co-rotate: they are *equivariant*, not invariant. We test this prediction explicitly.
 
-**Table 3.** Subspace cosine similarity under 50% neuron permutation, separated by permuted and unpermuted layers (5 seeds, invariance threshold $\tau = 0.85$).
+**Table 4.** Subspace cosine similarity under 50% neuron permutation, separated by permuted and unpermuted layers (5 seeds, invariance threshold $\tau = 0.85$).
 
 | Model | Permuted layers: mean sim ± std | Unpermuted layers | Threshold met? |
 |-------|--------------------------------|-------------------|---------------|
@@ -179,7 +179,7 @@ The interpretability implication is precise: **activation-space behavioral probe
 
 A consequence of the spectral constraint is that activation norms — which are trivially measurable — serve as a proxy for MLP spectral scale. In pre-norm architectures, each sublayer adds an increment of magnitude $\sim \sigma_1(W_\ell) \cdot \sqrt{d}$ to the residual stream, making the cumulative norm $\bar\mu_\ell$ an integral of spectral scales across layers.
 
-**Table 4.** Pearson $r$ between per-layer $K_\ell = \bar\mu_\ell/\sqrt{d}$ and $\sigma_1(W_\text{up})$.
+**Table 5.** Pearson $r$ between per-layer $K_\ell = \bar\mu_\ell/\sqrt{d}$ and $\sigma_1(W_\text{up})$.
 
 | Model | Pearson $r$ | $p$-value |
 |-------|------------|-----------|
@@ -224,7 +224,7 @@ Designing behavioral probes that are functional-class invariants — rather than
 
 ### 6.3 Gemma 2: Post-Norm Generalizes Alignment and Shifts the Spectral Proxy
 
-Gemma 2 presents an apparent paradox: Table 1 shows behavioral directions at 3.04× alignment with $W_\text{down}$ SVs (above random, consistent with the main claim), yet Table 2 shows raw PC1 alignment at 5.61× — *exceeding* behavioral PC1 (4.98×), eliminating behavioral specificity. Meanwhile Table 4 shows K–spectral correlation collapsing from $r > 0.71$ to $r = 0.42$. All three anomalies are resolved by a single architectural mechanism, confirmed by Experiment 09.
+Gemma 2 presents an apparent paradox: Table 2 shows behavioral directions at 3.04× alignment with $W_\text{down}$ SVs (above random, consistent with the main claim), yet Table 3 shows raw PC1 alignment at 5.61× — *exceeding* behavioral PC1 (4.98×), eliminating behavioral specificity. Meanwhile Table 5 shows K–spectral correlation collapsing from $r > 0.71$ to $r = 0.42$. All three anomalies are resolved by a single architectural mechanism, confirmed by Experiment 09.
 
 In pre-norm transformers, the spectral proxy holds because each sublayer increment has magnitude $\sim \sigma_1(W_\ell) \cdot \sqrt{d}$:
 
