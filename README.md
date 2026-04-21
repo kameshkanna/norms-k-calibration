@@ -52,18 +52,18 @@ This requires only a single forward pass over a small set of calibration prompts
 
 All experiments run across 4 models × 5 behaviors × 225 unique contrastive prompt pairs.
 
-### K Correlation with Spectral Norm (W_up)
+### K Correlation with Spectral Norm (W_up) and Post-Norm Scale
 
-Per-layer K values correlate strongly with MLP W_up spectral norms (all p < 0.01):
+Per-layer K values correlate strongly with their architecture-appropriate spectral proxy:
 
-| Model | Pearson r (K vs W_up) | p-value | K vs W_down |
-|-------|----------------------|---------|------------|
-| Llama-3.1-8B | **0.769** | 2.7×10⁻⁷ | −0.611 |
-| Qwen2.5-7B | **0.711** | 2.2×10⁻⁵ | −0.455 |
-| Mistral-7B | **0.715** | 4.2×10⁻⁶ | +0.165 |
-| Gemma-2-9B | 0.421 | 5.4×10⁻³ | −0.721 |
+| Model | r (K vs W_up) | p-value | r (K vs cumul. γ_post) | Spearman ρ (γ_post) |
+|-------|--------------|---------|------------------------|---------------------|
+| Llama-3.1-8B | **0.769** | 2.7×10⁻⁷ | — | — |
+| Qwen2.5-7B | **0.711** | 2.2×10⁻⁵ | — | — |
+| Mistral-7B | **0.715** | 4.2×10⁻⁶ | — | — |
+| Gemma-2-9B | 0.421 (ρ=0.12, n.s.) | 5.4×10⁻³ | **0.960** | **0.9992** |
 
-Gemma-2's weaker W_up correlation (r=0.421) is explained by its dual pre+post RMSNorm architecture: the post-norm clips the MLP output increment to ‖γ_post‖·√d independent of σ₁(W_up), decoupling K from W_up spectral norms. See `figures/fig1_k_vs_spectral.pdf`.
+For pre-norm architectures, K tracks MLP spectral norms (r = 0.71–0.77). For Gemma-2's dual pre+post RMSNorm architecture, the post-norm clips each sublayer increment to ‖γ_post‖·√d, decoupling K from W_up spectral norms. Experiment 09 confirms K instead tracks the cumulative post-norm scale with near-perfect monotonic correlation (ρ = 0.9992, p < 10⁻²³). The K formula is a universal spectral bridge across normalization regimes. See `figures/fig1_k_vs_spectral.pdf` and `results/gemma_postnorm/`.
 
 ### PCA–SVD Alignment (vs W_down)
 
@@ -236,7 +236,8 @@ baker.save("./sycophancy_adapter")
 | 05 | `05_baking_efficacy.py` | K-calibrated vs uncalibrated accuracy | `results/efficacy/` | ✅ Done |
 | 06 | `06_weight_space_alignment.py` | PCA–SVD alignment ratio | `results/weight_alignment/` | ✅ Done |
 | 07 | `07_generate_figures.py` | All 5 paper figures | `figures/` | ✅ Done (rerun after 08) |
-| 08 | `08_raw_activation_control.py` | Raw vs behavioral PC1 alignment — specificity control | `results/raw_activation_control/` | ❌ Not yet run |
+| 08 | `08_raw_activation_control.py` | Raw vs behavioral PC1 alignment — specificity control | `results/raw_activation_control/` | ✅ Done |
+| 09 | `09_gemma_postnorm_analysis.py` | K vs γ_post scale correlation for Gemma 2 — dual-norm spectral proxy | `results/gemma_postnorm/` | ✅ Done |
 
 ---
 
