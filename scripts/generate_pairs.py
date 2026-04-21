@@ -230,15 +230,50 @@ def generate_text(
     """
     messages = [{"role": "user", "content": prompt}]
 
-    # Use chat template if available, fall back to raw prompt
-    if hasattr(tokenizer, "apply_chat_template") and tokenizer.chat_template is not None:
+    # Use chat template if jinja2 >= 3.1.0 is available, otherwise fall back
+    # to a manually formatted prompt using the model's known format.
+    input_text: str
+    try:
+        import jinja2 as _j2
+        from packaging.version import Version
+        _has_jinja = Version(_j2.__version__) >= Version("3.1.0")
+    except ImportError:
+        _has_jinja = False
+
+    if _has_jinja and hasattr(tokenizer, "apply_chat_template") and tokenizer.chat_template is not None:
         input_text = tokenizer.apply_chat_template(
             messages,
             tokenize=False,
             add_generation_prompt=True,
         )
     else:
-        input_text = f"User: {prompt}\nAssistant:"
+        # Manual fallbacks covering every model in models.yml.
+        # Detect format from model name embedded in the tokenizer config.
+        name = (getattr(tokenizer, "name_or_path", "") or "").lower()
+        if "llama" in name:
+            input_text = (
+                "<|begin_of_text|>"
+                "<|start_header_id|>user<|end_header_id|>\n\n"
+                f"{prompt}"
+                "<|eot_id|>"
+                "<|start_header_id|>assistant<|end_header_id|>\n\n"
+            )
+        elif "qwen" in name:
+            input_text = (
+                "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+                f"<|im_start|>user\n{prompt}<|im_end|>\n"
+                "<|im_start|>assistant\n"
+            )
+        elif "mistral" in name:
+            input_text = f"[INST] {prompt} [/INST]"
+        elif "gemma" in name:
+            input_text = (
+                "<start_of_turn>user\n"
+                f"{prompt}<end_of_turn>\n"
+                "<start_of_turn>model\n"
+            )
+        else:
+            input_text = f"User: {prompt}\nAssistant:"
 
     inputs = tokenizer(
         input_text,
