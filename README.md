@@ -238,7 +238,6 @@ baker.save("./sycophancy_adapter")
 | 07 | `07_generate_figures.py` | All 5 paper figures | `figures/` | ✅ Done (rerun after 08) |
 | 08 | `08_raw_activation_control.py` | Raw vs behavioral PC1 alignment — specificity control | `results/raw_activation_control/` | ✅ Done |
 | 09 | `09_gemma_postnorm_analysis.py` | K vs γ_post scale correlation for Gemma 2 — dual-norm spectral proxy | `results/gemma_postnorm/` | ✅ Done |
-| 10 | `10_downstream_eval.py` | Behavioral shift on neutral prompts + GSM8K capability preservation | `results/downstream_eval/` | ⚠️ Needs run on A100 |
 
 ---
 
