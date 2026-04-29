@@ -1,6 +1,0 @@
-2026-04-18 19:06:21,600 | INFO     | __main__ | Log file: results/logs/01_norm_profiling_all_20260418_190621.log
-2026-04-18 19:06:24,533 | INFO     | __main__ | Starting norm profiling: models=['llama', 'qwen', 'mistral', 'gemma']  device=cuda  prompts=50  seed=42
-2026-04-18 19:06:24,534 | INFO     | __main__ | ========================================================================
-2026-04-18 19:06:24,534 | INFO     | __main__ | Processing model: llama
-2026-04-18 19:06:24,534 | INFO     | __main__ | ========================================================================
-2026-04-18 19:06:24,535 | INFO     | __main__ | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
