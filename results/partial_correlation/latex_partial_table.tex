@@ -1,0 +1,31 @@
+\begin{table}[ht]
+  \centering
+  \caption{
+    \textbf{Spectral correlations: full vs.\ depth-controlled (partial).}
+    $r(\cdot, \cdot)$: Pearson; $r(\cdot, \cdot \mid \ell)$: partial correlation
+    controlling for layer index $\ell$. Partial correlations address the
+    depth-confound concern: both $K_\ell$ and $\sone(\Wup_\ell)$ trend monotonically
+    with depth in pre-norm models. Retaining $r > 0.5$ after partialing
+    confirms the spectral link is not purely a proxy for depth.
+    $\sone(\Wdn_\ell)$ column tests the theoretically motivated proxy
+    (Proposition~\ref{prop:integral}) directly.
+  }
+  \label{tab:partial_spectral}
+  \vskip 0.05in
+  \resizebox{\columnwidth}{!}{%
+  \begin{tabular}{lcccc}
+    \toprule
+    \textbf{Model}
+    & $r(K,\Wup)$
+    & $r(K,\Wup|\ell)$
+    & $r(K,\Wdn)$
+    & $r(K,\Wdn|\ell)$ \\
+    \midrule
+    Llama 3.1 8B & $0.769$ & $0.901$^{**}$$ & $-0.611$ & $0.007$ \\
+    Gemma 2 9B & $0.421$ & $0.696$^{**}$$ & $-0.721$ & $0.313$^{*}$$ \\
+    Qwen 2.5 7B & $0.711$ & $0.832$^{**}$$ & $-0.455$ & $-0.040$ \\
+    Mistral 7B & $0.715$ & $0.780$^{**}$$ & $0.165$ & $0.419$^{*}$$ \\
+    \bottomrule
+    \multicolumn{5}{l}{\scriptsize $^{**}p{<}0.01$, $^{*}p{<}0.05$ (two-tailed $t$-test, $n-3$ d.f.)}
+  \end{tabular}}
+\end{table}

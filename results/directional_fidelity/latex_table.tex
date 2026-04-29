@@ -1,0 +1,28 @@
+\begin{table}[t]
+  \centering
+  \caption{
+    \textbf{Directional fidelity (mean cosine shift, $\uparrow$ better)} across
+    4 models and 5 behavioral axes. Values are mean $\pm$ 95\% CI over
+    behaviors ($n{=}5$). \textit{Gain} is the absolute improvement of
+    K-calibrated over uncalibrated; $\dagger$ marks cases where post-norm
+    decoupling reduces absolute shift (see Remark~3).
+  }
+  \label{tab:directional_fidelity}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{lcccc}
+    \toprule
+    \textbf{Model}
+    & \textbf{Baseline}
+    & \textbf{Raw (K=1)}
+    & \textbf{PC1 (K=1)}
+    & \textbf{PC1 (K-cal.)} \\
+    \midrule
+    Llama 3.1 8B & $0.0040_{\pm0.0521}$ & $0.0121_{\pm0.0256}$ & $0.0014_{\pm0.0325}$ & $0.0471_{\pm0.0212}$ \\
+    Gemma 2 9B & $0.0033_{\pm0.0506}$ & $0.0158_{\pm0.0256}$ & $0.0117_{\pm0.0331}$ & $0.0065_{\pm0.0326}^{\dagger}$ \\
+    Qwen 2.5 7B & $0.0003_{\pm0.0666}$ & $0.0087_{\pm0.0448}$ & $0.0119_{\pm0.0232}$ & $0.0018_{\pm0.0313}$ \\
+    Mistral 7B & $-0.0069_{\pm0.0551}$ & $0.0443_{\pm0.0438}$ & $0.0281_{\pm0.0272}$ & $0.0170_{\pm0.0478}$ \\
+    \midrule
+    \textit{Average} & $0.0002_{\pm0.0561}$ & $0.0202_{\pm0.0350}$ & $0.0133_{\pm0.0290}$ & $0.0181_{\pm0.0332}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

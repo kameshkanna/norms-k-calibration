@@ -1,12 +1,13 @@
 """
 Generate all paper figures from experiment results.
 
-Produces 5 figures saved to figures/:
-  fig1_k_vs_spectral.pdf  — K vs W_up spectral norm scatter (4-panel)
+Produces 6 figures saved to figures/:
+  fig1_k_vs_spectral.pdf      — K vs W_up spectral norm scatter (4-panel)
   fig2_alignment_heatmap.pdf  — Weight-space alignment ratio heatmap
-  fig3_norm_profiles.pdf  — Per-layer activation norm profiles
-  fig4_efficacy.pdf  — Steering method comparison bar chart
-  fig5_permutation.pdf  — Permutation invariance cosine-sim distribution
+  fig3_norm_profiles.pdf      — Per-layer activation norm profiles
+  fig4_efficacy.pdf           — Steering method comparison bar chart
+  fig5_permutation.pdf        — Permutation invariance cosine-sim distribution
+  fig6_raw_control.pdf        — Behavioral vs. generic direction W_down alignment
 """
 
 from __future__ import annotations
@@ -348,6 +349,120 @@ def fig5_permutation() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Figure 6: Raw activation control — behavioral vs. generic W_down alignment
+# ---------------------------------------------------------------------------
+
+def fig6_raw_control() -> None:
+    """Grouped bar chart comparing W_down alignment ratios across five direction types.
+
+    Source: results/raw_activation_control/aggregate_summary.csv
+    Columns: model_key, behavioral_pc1_ratio, contrastive_mean_ratio,
+             raw_pc1_ratio, raw_mean_dir_ratio, random_baseline,
+             behavioral_advantage_over_raw_pc1
+    """
+    csv_path = RESULTS / "raw_activation_control" / "aggregate_summary.csv"
+    if not csv_path.exists():
+        logger.error("Missing aggregate summary: %s — skipping fig6", csv_path)
+        return
+
+    df = pd.read_csv(csv_path)
+    df["model_label"] = df["model_key"].map(MODEL_LABELS)
+    df = df.set_index("model_key").reindex(MODEL_KEYS).reset_index()
+
+    # Direction types to plot as grouped bars (raw_mean excluded from main bars —
+    # shown as a separate hatched overlay to mark it as a structural artifact)
+    bar_directions = [
+        ("behavioral_pc1_ratio",   "Behavioral PC1",    "#2166ac", None),
+        ("contrastive_mean_ratio",  "Contrastive mean",  "#4dac26", None),
+        ("raw_pc1_ratio",           "Raw PC1",           "#d01c8b", None),
+        ("raw_mean_dir_ratio",      "Raw mean (artifact)", "#b2b2b2", "////"),
+    ]
+
+    n_models = len(MODEL_KEYS)
+    n_bars = len(bar_directions)
+    bar_width = 0.18
+    x = np.arange(n_models)
+
+    fig, ax = plt.subplots(figsize=(9, 4.8), constrained_layout=True)
+
+    for i, (col, label, color, hatch) in enumerate(bar_directions):
+        offsets = x + (i - (n_bars - 1) / 2) * bar_width
+        vals = df[col].to_numpy()
+        bars = ax.bar(
+            offsets,
+            vals,
+            width=bar_width,
+            label=label,
+            color=color,
+            hatch=hatch,
+            edgecolor="white" if hatch is None else "#666666",
+            linewidth=0.8,
+            alpha=0.88,
+        )
+        # Annotate behavioral advantage above behavioral_pc1 bars
+        if col == "behavioral_pc1_ratio":
+            for bar, (_, row) in zip(bars, df.iterrows()):
+                adv = row["behavioral_advantage_over_raw_pc1"]
+                sign = "+" if adv >= 0 else ""
+                color_adv = "#1a6320" if adv >= 0 else "#991111"
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() + 0.15,
+                    f"{sign}{adv:.2f}×",
+                    ha="center",
+                    va="bottom",
+                    fontsize=7.5,
+                    color=color_adv,
+                    fontweight="bold",
+                )
+
+    # Random baseline as a horizontal reference line per model group
+    for xi, (_, row) in zip(x, df.iterrows()):
+        span = bar_width * n_bars / 2 + bar_width * 0.3
+        ax.hlines(
+            row["random_baseline"],
+            xi - span,
+            xi + span,
+            colors="#999999",
+            linestyles=":",
+            linewidths=1.2,
+        )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels([MODEL_LABELS[m] for m in MODEL_KEYS], fontsize=10)
+    ax.set_ylabel(r"$W_\mathrm{down}$ alignment ratio (× random baseline)", fontsize=10)
+    ax.set_title(
+        r"Contrastive extraction yields $W_\mathrm{down}$-aligned directions"
+        "\nabove the generic activation baseline (3 of 4 architectures)",
+        fontsize=11,
+        fontweight="bold",
+    )
+    ax.axhline(1.0, color="#444444", ls="--", lw=1.0, alpha=0.6, label="Random baseline (1.0×)")
+    ax.set_ylim(0, df["raw_mean_dir_ratio"].max() * 1.18)
+
+    # Gemma 2 annotation — explain the exception
+    gemma_idx = MODEL_KEYS.index("gemma")
+    ax.annotate(
+        "Post-norm\ndecoupling",
+        xy=(gemma_idx, df.loc[df["model_key"] == "gemma", "behavioral_pc1_ratio"].values[0] + 0.3),
+        xytext=(gemma_idx + 0.55, df.loc[df["model_key"] == "gemma", "behavioral_pc1_ratio"].values[0] + 2.5),
+        fontsize=8,
+        color="#7b3294",
+        arrowprops=dict(arrowstyle="->", color="#7b3294", lw=1.0),
+        ha="center",
+    )
+
+    ax.legend(fontsize=9, loc="upper left", ncol=2, framealpha=0.9)
+    ax.grid(axis="y", alpha=0.3)
+    ax.set_axisbelow(True)
+
+    out = FIGURES / "fig6_raw_control.pdf"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    logger.info("Saved %s", out)
+
+
+# ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
 
@@ -358,6 +473,7 @@ def main() -> None:
     fig3_norm_profiles()
     fig4_efficacy()
     fig5_permutation()
+    fig6_raw_control()
     logger.info("Done. Figures written to %s", FIGURES)
 
 

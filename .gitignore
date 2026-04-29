@@ -8,3 +8,16 @@ build/
 .DS_Store
 *.pt
 *.pkl
+
+# Large model weights — never commit
+*.bin
+*.safetensors
+
+# Logs (large, regeneratable)
+logs/
+results/logs/
+
+# AVAW is a separate project — nothing from it belongs here
+avaw/results/
+avaw/experiments/
+avaw/*.py
