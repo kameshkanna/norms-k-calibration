@@ -1,10 +1,166 @@
+# config/models.yml — Model registry consumed by experiments 01–03.
+# Mirrors the ModelConfig dataclass in config.py.
+# Keys must match ALL_MODEL_KEYS in config.py exactly.
+
 models:
+  # ── Llama family ─────────────────────────────────────────────────────────
+  llama_1b:
+    huggingface_id: "meta-llama/Llama-3.2-1B-Instruct"
+    architecture: "llama"
+    hidden_size: 2048
+    num_layers: 16
+    intermediate_size: 8192
+    norm_type: "pre"
+    size_tier: "small"
+
+  llama_3b:
+    huggingface_id: "meta-llama/Llama-3.2-3B-Instruct"
+    architecture: "llama"
+    hidden_size: 3072
+    num_layers: 28
+    intermediate_size: 8192
+    norm_type: "pre"
+    size_tier: "small"
+
+  llama_8b:
+    huggingface_id: "meta-llama/Llama-3.1-8B-Instruct"
+    architecture: "llama"
+    hidden_size: 4096
+    num_layers: 32
+    intermediate_size: 14336
+    norm_type: "pre"
+    size_tier: "mid"
+
+  llama_70b:
+    huggingface_id: "meta-llama/Llama-3.1-70B-Instruct"
+    architecture: "llama"
+    hidden_size: 8192
+    num_layers: 80
+    intermediate_size: 28672
+    norm_type: "pre"
+    size_tier: "large"
+
+  # ── Qwen 2.5 family ───────────────────────────────────────────────────────
+  qwen_3b:
+    huggingface_id: "Qwen/Qwen2.5-3B-Instruct"
+    architecture: "qwen2"
+    hidden_size: 2048
+    num_layers: 36
+    intermediate_size: 11008
+    norm_type: "pre"
+    size_tier: "small"
+
+  qwen_7b:
+    huggingface_id: "Qwen/Qwen2.5-7B-Instruct"
+    architecture: "qwen2"
+    hidden_size: 3584
+    num_layers: 28
+    intermediate_size: 18944
+    norm_type: "pre"
+    size_tier: "mid"
+
+  qwen_14b:
+    huggingface_id: "Qwen/Qwen2.5-14B-Instruct"
+    architecture: "qwen2"
+    hidden_size: 5120
+    num_layers: 48
+    intermediate_size: 13824
+    norm_type: "pre"
+    size_tier: "large"
+
+  qwen_32b:
+    huggingface_id: "Qwen/Qwen2.5-32B-Instruct"
+    architecture: "qwen2"
+    hidden_size: 5120
+    num_layers: 64
+    intermediate_size: 27648
+    norm_type: "pre"
+    size_tier: "large"
+
+  qwen_72b:
+    huggingface_id: "Qwen/Qwen2.5-72B-Instruct"
+    architecture: "qwen2"
+    hidden_size: 8192
+    num_layers: 80
+    intermediate_size: 29568
+    norm_type: "pre"
+    size_tier: "large"
+
+  # ── Mistral / Mixtral family ─────────────────────────────────────────────
+  mistral_7b:
+    huggingface_id: "mistralai/Mistral-7B-Instruct-v0.3"
+    architecture: "mistral"
+    hidden_size: 4096
+    num_layers: 32
+    intermediate_size: 14336
+    norm_type: "pre"
+    size_tier: "mid"
+
+  mixtral_8x7b:
+    huggingface_id: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    architecture: "mistral"
+    hidden_size: 4096
+    num_layers: 32
+    intermediate_size: 14336
+    norm_type: "pre"
+    size_tier: "large"
+
+  # ── Gemma 2 family (dual-norm) ───────────────────────────────────────────
+  gemma_2b:
+    huggingface_id: "google/gemma-2-2b-it"
+    architecture: "gemma2"
+    hidden_size: 2304
+    num_layers: 26
+    intermediate_size: 9216
+    norm_type: "dual"
+    size_tier: "small"
+
+  gemma_9b:
+    huggingface_id: "google/gemma-2-9b-it"
+    architecture: "gemma2"
+    hidden_size: 3584
+    num_layers: 42
+    intermediate_size: 14336
+    norm_type: "dual"
+    size_tier: "mid"
+
+  gemma_27b:
+    huggingface_id: "google/gemma-2-27b-it"
+    architecture: "gemma2"
+    hidden_size: 4608
+    num_layers: 46
+    intermediate_size: 36864
+    norm_type: "dual"
+    size_tier: "large"
+
+  # ── Phi-3 / Phi-3.5 family ───────────────────────────────────────────────
+  phi_mini:
+    huggingface_id: "microsoft/Phi-3.5-mini-instruct"
+    architecture: "phi3"
+    hidden_size: 3072
+    num_layers: 32
+    intermediate_size: 8192
+    norm_type: "pre"
+    size_tier: "small"
+
+  phi_medium:
+    huggingface_id: "microsoft/Phi-3-medium-128k-instruct"
+    architecture: "phi3"
+    hidden_size: 5120
+    num_layers: 40
+    intermediate_size: 17920
+    norm_type: "pre"
+    size_tier: "large"
+
+  # ── Backward-compatibility aliases (old scripts used bare family names) ───
   llama:
     huggingface_id: "meta-llama/Llama-3.1-8B-Instruct"
     architecture: "llama"
     hidden_size: 4096
     num_layers: 32
     intermediate_size: 14336
+    norm_type: "pre"
+    size_tier: "mid"
 
   qwen:
     huggingface_id: "Qwen/Qwen2.5-7B-Instruct"
@@ -12,6 +168,8 @@ models:
     hidden_size: 3584
     num_layers: 28
     intermediate_size: 18944
+    norm_type: "pre"
+    size_tier: "mid"
 
   mistral:
     huggingface_id: "mistralai/Mistral-7B-Instruct-v0.3"
@@ -19,6 +177,8 @@ models:
     hidden_size: 4096
     num_layers: 32
     intermediate_size: 14336
+    norm_type: "pre"
+    size_tier: "mid"
 
   gemma:
     huggingface_id: "google/gemma-2-9b-it"
@@ -26,3 +186,13 @@ models:
     hidden_size: 3584
     num_layers: 42
     intermediate_size: 14336
+    norm_type: "dual"
+    size_tier: "mid"
+
+# ── Named model groups (consumed by run_all.sh) ────────────────────────────
+groups:
+  wss:   [llama_8b, qwen_7b, mistral_7b, gemma_9b]
+  dev:   [llama_3b, qwen_3b, mistral_7b, gemma_2b, phi_mini]
+  small: [llama_1b, llama_3b, qwen_3b, gemma_2b, phi_mini]
+  mid:   [llama_8b, qwen_7b, mistral_7b, gemma_9b]
+  large: [llama_70b, qwen_14b, qwen_32b, qwen_72b, mixtral_8x7b, gemma_27b, phi_medium]

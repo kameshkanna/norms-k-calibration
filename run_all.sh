@@ -60,15 +60,33 @@ EXP="$SCRIPT_DIR/experiments"
 PYTHON="${PYTHON:-python3}"
 
 # ---------------------------------------------------------------------------
-# Translate MODEL_ARG into --model flag understood by each experiment script.
-# Experiment scripts accept a single key OR special group tokens.
+# Resolve MODEL_ARG into a comma-separated key list (or "all").
+# All experiment scripts accept: --model all | --model key1,key2,...
+# Groups and tiers are expanded here so no script needs to know about them.
 # ---------------------------------------------------------------------------
 case "$MODEL_ARG" in
-    wss)       MODEL_FLAG="--model-group wss"   ;;
-    dev)       MODEL_FLAG="--model-group dev"   ;;
-    tier:*)    MODEL_FLAG="--tier ${MODEL_ARG#tier:}" ;;
-    all)       MODEL_FLAG="--model all"          ;;
-    *)         MODEL_FLAG="--model $MODEL_ARG"   ;;
+    all)
+        MODEL_FLAG="--model all"
+        ;;
+    wss)
+        MODEL_FLAG="--model llama_8b,qwen_7b,mistral_7b,gemma_9b"
+        ;;
+    dev)
+        MODEL_FLAG="--model llama_3b,qwen_3b,mistral_7b,gemma_2b,phi_mini"
+        ;;
+    tier:small)
+        MODEL_FLAG="--model llama_1b,llama_3b,qwen_3b,gemma_2b,phi_mini"
+        ;;
+    tier:mid)
+        MODEL_FLAG="--model llama_8b,qwen_7b,mistral_7b,gemma_9b"
+        ;;
+    tier:large)
+        MODEL_FLAG="--model llama_70b,qwen_14b,qwen_32b,qwen_72b,mixtral_8x7b,gemma_27b,phi_medium"
+        ;;
+    *)
+        # Single key or already comma-separated list passed via --model
+        MODEL_FLAG="--model $MODEL_ARG"
+        ;;
 esac
 
 # ---------------------------------------------------------------------------

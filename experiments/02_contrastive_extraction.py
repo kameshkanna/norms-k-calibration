@@ -258,14 +258,13 @@ def _load_model_and_tokenizer(
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    logger.info("Loading model: %s  →  %s", hf_id, device)
-    dtype = torch.float16 if device.type == "cuda" else torch.float32
+    logger.info("Loading model: %s  (device_map=auto)", hf_id)
     model = AutoModelForCausalLM.from_pretrained(
         hf_id,
-        torch_dtype=dtype,
-        low_cpu_mem_usage=True,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
+        trust_remote_code=True,
     )
-    model.to(device)
     model.eval()
     logger.info(
         "Model loaded. Params: %.1fB  GPU mem: %.2f GiB",
@@ -540,9 +539,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--model",
         type=str,
-        choices=["llama", "qwen", "gemma", "mistral", "all"],
         default="all",
-        help="Which model(s) to run extraction for.",
+        help=(
+            "Model key(s) to run. Accepts: 'all', a single key, or "
+            "a comma-separated list (e.g. 'llama_8b,qwen_7b'). "
+            "Keys must match config/models.yml."
+        ),
     )
     parser.add_argument(
         "--behavior",
@@ -576,6 +578,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         type=int,
         default=42,
         help="Global random seed.",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Recompute even if output artefacts already exist.",
     )
     return parser
 
@@ -618,7 +625,15 @@ def main() -> None:
 
     # ---- Resolve target models and behaviors ----
     all_model_keys = list(models_cfg["models"].keys())
-    target_keys: List[str] = all_model_keys if args.model == "all" else [args.model]
+    compat_aliases = {"llama", "qwen", "mistral", "gemma"}
+    if args.model == "all":
+        target_keys = [k for k in all_model_keys if k not in compat_aliases]
+    else:
+        target_keys = [k.strip() for k in args.model.split(",") if k.strip()]
+        unknown = [k for k in target_keys if k not in all_model_keys]
+        if unknown:
+            raise ValueError(f"Unknown model key(s): {unknown}. Available: {all_model_keys}")
+
     target_behaviors: List[str] = (
         SUPPORTED_BEHAVIORS if args.behavior == "all" else [args.behavior]
     )
@@ -634,6 +649,10 @@ def main() -> None:
     )
 
     for model_key in tqdm(target_keys, desc="Models", unit="model", dynamic_ncols=True):
+        first_behavior_dir = output_dir / model_key / target_behaviors[0]
+        if (first_behavior_dir / "directions.pt").exists() and not args.overwrite:
+            logger.info("Skipping %s — outputs exist (--overwrite to recompute).", model_key)
+            continue
         logger.info("=" * 72)
         logger.info("MODEL: %s", model_key)
         logger.info("=" * 72)

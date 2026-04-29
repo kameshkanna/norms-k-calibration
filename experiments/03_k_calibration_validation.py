@@ -456,18 +456,17 @@ def _validate_single_model(
     )
 
     # ---- Load model ----
-    logger.info("Loading model for spectral norm computation: %s", hf_id)
-    dtype = torch.float16 if device.type == "cuda" else torch.float32
-    tokenizer = AutoTokenizer.from_pretrained(hf_id, use_fast=True)
+    logger.info("Loading model for spectral norm computation: %s  (device_map=auto)", hf_id)
+    tokenizer = AutoTokenizer.from_pretrained(hf_id, use_fast=True, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     model = AutoModelForCausalLM.from_pretrained(
         hf_id,
-        torch_dtype=dtype,
-        low_cpu_mem_usage=True,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
+        trust_remote_code=True,
     )
-    model.to(device)
     model.eval()
     model_info: ModelInfo = detect_model_info(model, hf_id)
 
@@ -595,8 +594,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--model",
         type=str,
-        choices=["llama", "qwen", "gemma", "mistral", "all"],
         default="all",
+        help=(
+            "Model key(s) to validate. Accepts: 'all', a single key, or "
+            "a comma-separated list. Keys must match config/models.yml."
+        ),
     )
     parser.add_argument(
         "--device",
@@ -632,6 +634,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         dest="norm_profiles_dir",
         help="Directory containing norm profile CSVs from script 01.",
     )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Recompute even if output CSV already exists.",
+    )
     return parser
 
 
@@ -661,7 +668,14 @@ def main() -> None:
         models_cfg: Dict = yaml.safe_load(fh)
 
     all_model_keys = list(models_cfg["models"].keys())
-    target_keys: List[str] = all_model_keys if args.model == "all" else [args.model]
+    compat_aliases = {"llama", "qwen", "mistral", "gemma"}
+    if args.model == "all":
+        target_keys = [k for k in all_model_keys if k not in compat_aliases]
+    else:
+        target_keys = [k.strip() for k in args.model.split(",") if k.strip()]
+        unknown = [k for k in target_keys if k not in all_model_keys]
+        if unknown:
+            raise ValueError(f"Unknown model key(s): {unknown}. Available: {all_model_keys}")
 
     # Resolve weight types
     if args.weight_type == "all":
@@ -678,6 +692,10 @@ def main() -> None:
     )
 
     for model_key in tqdm(target_keys, desc="Models", unit="model", dynamic_ncols=True):
+        csv_path = output_dir / f"{model_key}_k_vs_spectral.csv"
+        if csv_path.exists() and not args.overwrite:
+            logger.info("Skipping %s — output exists (--overwrite to recompute).", model_key)
+            continue
         logger.info("=" * 72)
         logger.info("MODEL: %s", model_key)
         logger.info("=" * 72)

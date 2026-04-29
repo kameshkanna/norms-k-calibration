@@ -228,14 +228,13 @@ def _load_model_and_tokenizer(
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    logger.info("Loading model: %s  →  %s", hf_id, device)
-    dtype = torch.float16 if device.type == "cuda" else torch.float32
+    logger.info("Loading model: %s  (device_map=auto)", hf_id)
     model = AutoModelForCausalLM.from_pretrained(
         hf_id,
-        torch_dtype=dtype,
-        low_cpu_mem_usage=True,
+        torch_dtype=torch.bfloat16,
+        device_map="auto",
+        trust_remote_code=True,
     )
-    model.to(device)
     model.eval()
     logger.info(
         "Model loaded. Parameters: %.1fB  GPU mem: %.2f GiB",
@@ -438,9 +437,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--model",
         type=str,
-        choices=["llama", "qwen", "gemma", "mistral", "all"],
         default="all",
-        help="Which model(s) to profile.",
+        help=(
+            "Model key(s) to profile. Accepts: 'all', a single key "
+            "(e.g. 'llama_8b'), or a comma-separated list "
+            "(e.g. 'llama_8b,qwen_7b'). Keys must match config/models.yml."
+        ),
     )
     parser.add_argument(
         "--device",
@@ -467,6 +469,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default=50,
         dest="n_prompts",
         help="Number of calibration prompts to use (max 50).",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Recompute even if output CSV already exists.",
     )
     return parser
 
@@ -511,14 +518,18 @@ def main() -> None:
     # ---- Determine target models ----
     all_model_keys = list(models_cfg["models"].keys())
     if args.model == "all":
-        target_keys = all_model_keys
+        # Exclude compat aliases (bare family names) to avoid duplicate runs
+        compat = {"llama", "qwen", "mistral", "gemma"}
+        target_keys = [k for k in all_model_keys if k not in compat]
     else:
-        if args.model not in all_model_keys:
+        requested = [k.strip() for k in args.model.split(",") if k.strip()]
+        unknown = [k for k in requested if k not in all_model_keys]
+        if unknown:
             raise ValueError(
-                f"Model key '{args.model}' not found in config. "
+                f"Unknown model key(s): {unknown}. "
                 f"Available: {all_model_keys}"
             )
-        target_keys = [args.model]
+        target_keys = requested
 
     prompts = CALIBRATION_PROMPTS[: args.n_prompts]
     logger.info(
@@ -532,6 +543,11 @@ def main() -> None:
     # ---- Run profiling per model ----
     results: Dict[str, pd.DataFrame] = {}
     for model_key in tqdm(target_keys, desc="Models", unit="model", dynamic_ncols=True):
+        csv_path = output_dir / f"{model_key}.csv"
+        if csv_path.exists() and not args.overwrite:
+            logger.info("Skipping %s — output exists (--overwrite to recompute).", model_key)
+            results[model_key] = pd.read_csv(csv_path)
+            continue
         logger.info("=" * 72)
         logger.info("Processing model: %s", model_key)
         logger.info("=" * 72)
