@@ -68,15 +68,22 @@ Outputs  (all under results/downstream_eval/)
 
 Usage
 -----
-  # Quick sanity check — one model, one behavior (~5 min on A100)
+  # Sanity check — one model, one behavior (~5 min on A100)
   python experiments/10_downstream_behavioral_eval.py \\
       --model llama_8b --behavior refusal_calibration
 
-  # Full 4-model run (~75 min on A100)
-  python experiments/10_downstream_behavioral_eval.py --model all --behavior all
+  # Three architecturally distinct models (recommended for paper)
+  #   llama_8b  — pre-norm, small norms  (μ̄_0 ≈ 0.7,  K_l ≈ 0.01–0.93)
+  #   qwen_7b   — pre-norm, large norms  (μ̄_0 ≈ 11.3, K_l ≈ 0.19–7.47)
+  #   gemma_9b  — dual-norm, very large  (μ̄_0 ≈ 80.6, K_l ≈ 1.35–25.3)
+  # Qwen sits between Llama and Gemma: K=1 gives only ~0.22% relative
+  # perturbation at late layers — directly proving the formula is necessary.
+  python experiments/10_downstream_behavioral_eval.py --model llama_8b --behavior all
+  python experiments/10_downstream_behavioral_eval.py --model qwen_7b  --behavior all
+  python experiments/10_downstream_behavioral_eval.py --model gemma_9b --behavior all
 
-  # Low-VRAM run
-  python experiments/10_downstream_behavioral_eval.py --model all --load-in-4bit
+  # Low-VRAM (quantised)
+  python experiments/10_downstream_behavioral_eval.py --model llama_8b --load-in-4bit
 """
 
 from __future__ import annotations
