@@ -167,6 +167,80 @@ MAX_NEW_TOKENS: int = 256
 OUT_DIR: Path = RESULTS_DIR / "downstream_eval"
 FIG_DIR: Path = ROOT / "figures"
 
+# Norm profiles from experiment 01 (norms_k_analysis repo).
+# K is a property of the model's activation distribution, not the behavior.
+# We load these pre-computed values instead of re-estimating from behavioral
+# prompts to stay consistent with the K values reported in paper Figures 1–3.
+_NORM_PROFILES_DIR: Path = ROOT.parent / "norms_k_analysis" / "results" / "norm_profiles"
+
+# Maps config model key → norm-profile CSV short name
+_MODEL_KEY_TO_PROFILE: Dict[str, str] = {
+    "llama_8b":   "llama",
+    "qwen_7b":    "qwen",
+    "gemma_9b":   "gemma",
+    "mistral_7b": "mistral",
+}
+
+
+def _load_precomputed_k_values(model_key: str) -> Dict[str, float]:
+    """
+    Load per-layer K values from experiment 01's norm-profile CSV.
+
+    Returns a dict mapping layer_name (e.g. 'model.layers.8') → K_l scalar.
+    Falls back to an empty dict if the CSV is not found, in which case
+    Baker will re-derive K from the train prompts (k_calibration='auto').
+    """
+    short = _MODEL_KEY_TO_PROFILE.get(model_key)
+    if short is None:
+        log.warning("No norm-profile mapping for %s — will recompute norms.", model_key)
+        return {}
+
+    csv_path = _NORM_PROFILES_DIR / f"{short}.csv"
+    if not csv_path.exists():
+        log.warning("Norm profile not found: %s — will recompute norms.", csv_path)
+        return {}
+
+    import csv as _csv
+    k_values: Dict[str, float] = {}
+    with csv_path.open(encoding="utf-8") as fh:
+        for row in _csv.DictReader(fh):
+            k_values[row["layer_name"]] = float(row["k_value"])
+
+    log.info(
+        "Loaded %d pre-computed K values for %s (range: %.4f – %.4f).",
+        len(k_values), model_key,
+        min(k_values.values()), max(k_values.values()),
+    )
+    return k_values
+
+
+def _inject_k_values(baker: Baker, precomputed_k: Dict[str, float]) -> None:
+    """
+    Replace Baker's K values with pre-computed values from experiment 01.
+
+    Only layers present in baker._directions AND precomputed_k are updated.
+    Layers not covered fall back to their existing K (1.0 when k_calibration='none').
+    """
+    if not precomputed_k:
+        return
+
+    matched: Dict[str, float] = {
+        layer: precomputed_k[layer]
+        for layer in baker._directions
+        if layer in precomputed_k
+    }
+    unmatched = set(baker._directions.keys()) - set(precomputed_k.keys())
+    if unmatched:
+        log.warning("No pre-computed K for layers: %s — keeping K=1.", sorted(unmatched))
+
+    baker._director.set_k_values(baker._directions, matched)
+    baker._k_values = {**baker._k_values, **matched}
+    log.info(
+        "Injected pre-computed K values into %d / %d fitted layers.",
+        len(matched), len(baker._directions),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Benchmark loaders
 # ---------------------------------------------------------------------------
@@ -533,6 +607,7 @@ def _evaluate_behavior(
     baker: Baker,
     behavior: str,
     out_dir: Path,
+    precomputed_k: Dict[str, float],
 ) -> pd.DataFrame:
     """
     Fit directions on train split of contrastive pairs, then evaluate on
@@ -603,13 +678,25 @@ def _evaluate_behavior(
 
     # pca_k_calibrated — PCA PC1, K_l = μ̄_l / √d per layer.
     #
-    # alpha=1.0 is the correct global multiplier because K_l already encodes
-    # the model-specific scale.  The self-normalisation property guarantees:
-    #   K_l / μ̄_l = 1/√d ≈ 1.56–1.67%  (constant for ALL layers of ALL models)
-    # so alpha=1.0 means "apply a ~1.6% relative perturbation at each layer"
-    # regardless of whether the model is Llama (K≈0.01–0.93) or Gemma (K≈1.3–25).
-    log.info("    [4/5] pca_k_calibrated (K=mu/sqrt(d), alpha=1.0)...")
-    baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="auto")
+    # Directions are fitted fresh from behavioral train pairs (PCA is
+    # behavior-specific).  K values are loaded from experiment 01's norm
+    # profiles (computed on 50 general calibration prompts) rather than
+    # re-derived from the 36 behavioral train prompts.  This keeps the K
+    # values consistent with those reported in paper Figures 1–3.
+    #
+    # If norm profiles are unavailable, falls back to k_calibration="auto"
+    # which re-estimates K from the train prompts (slightly biased but usable).
+    #
+    # Self-normalisation: K_l / μ̄_l = 1/√d ≈ 1.56–1.67% is constant for ALL
+    # layers of ALL models, so alpha=1.0 gives a model-agnostic ~1.6% relative
+    # perturbation regardless of whether the model is Llama (K≈0.01–0.93) or
+    # Gemma (K≈1.3–25) or Qwen (K≈0.19–7.47).
+    log.info("    [4/5] pca_k_calibrated (pre-computed K=mu/sqrt(d), alpha=1.0)...")
+    if precomputed_k:
+        baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="none")
+        _inject_k_values(baker, precomputed_k)
+    else:
+        baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="auto")
     _run_condition(
         "pca_k_calibrated",
         baker.generate(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
@@ -783,6 +870,12 @@ def main() -> None:
             load_in_8bit=args.load_in_8bit,
         )
 
+        # Load K values from experiment 01 norm profiles once per model.
+        # These are used for pca_k_calibrated to ensure consistency with
+        # the K values reported in paper Figures 1–3 (computed on 50 general
+        # calibration prompts, not on behavioral train pairs).
+        precomputed_k = _load_precomputed_k_values(model_key)
+
         for behavior in tqdm(behaviors, desc=cfg.label, unit="behavior"):
             out_dir = OUT_DIR / model_key / behavior
             summary_path = out_dir / "summary.csv"
@@ -792,7 +885,7 @@ def main() -> None:
                 summary = pd.read_csv(summary_path)
             else:
                 log.info("  Evaluating %s / %s", cfg.label, behavior)
-                summary = _evaluate_behavior(baker, behavior, out_dir)
+                summary = _evaluate_behavior(baker, behavior, out_dir, precomputed_k)
 
             summary["model"]     = cfg.label
             summary["model_key"] = model_key
