@@ -569,7 +569,7 @@ def _evaluate_behavior(
         baker.generate_baseline(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
     )
 
-    # raw_addition — mean diff, K=1
+    # raw_addition — mean diff, K=1 (naive baseline, no PCA, no calibration)
     log.info("    [2/5] raw_addition...")
     baker.fit(train_pos, train_neg, use_mean_diff=True, k_calibration="none")
     _run_condition(
@@ -578,8 +578,15 @@ def _evaluate_behavior(
     )
     _gc()
 
-    # pca_uncalibrated — PCA PC1, K=1
-    log.info("    [3/5] pca_uncalibrated...")
+    # pca_uncalibrated — PCA PC1, K=1 uniformly across all layers and models.
+    #
+    # NOTE on scale: K=1 is deliberately "wrong" — this is the ablation baseline
+    # that proves calibration matters.  The relative perturbation K/μ̄_l = 1/μ̄_l
+    # varies from ~389% (Mistral layer 0, μ̄≈0.26) to ~0.07% (Gemma layer 41,
+    # μ̄≈1514).  Over-steered layers will produce degraded or incoherent text;
+    # under-steered layers will show no effect.  Both failure modes are evidence
+    # for the K-calibration formula.
+    log.info("    [3/5] pca_uncalibrated (K=1, intentionally mis-scaled)...")
     baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="none")
     _run_condition(
         "pca_uncalibrated",
@@ -587,21 +594,31 @@ def _evaluate_behavior(
     )
     _gc()
 
-    # pca_k_calibrated — PCA PC1, K = μ̄/√d
-    log.info("    [4/5] pca_k_calibrated...")
+    # pca_k_calibrated — PCA PC1, K_l = μ̄_l / √d per layer.
+    #
+    # alpha=1.0 is the correct global multiplier because K_l already encodes
+    # the model-specific scale.  The self-normalisation property guarantees:
+    #   K_l / μ̄_l = 1/√d ≈ 1.56–1.67%  (constant for ALL layers of ALL models)
+    # so alpha=1.0 means "apply a ~1.6% relative perturbation at each layer"
+    # regardless of whether the model is Llama (K≈0.01–0.93) or Gemma (K≈1.3–25).
+    log.info("    [4/5] pca_k_calibrated (K=mu/sqrt(d), alpha=1.0)...")
     baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="auto")
     _run_condition(
         "pca_k_calibrated",
         baker.generate(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
     )
 
-    # pca_k_calibrated_reversed — same direction, α = -1
-    # Mechanistic check: negating the steering direction should INDUCE the
-    # suppressed behaviour (more sycophancy, more informality, fewer refusals).
-    # If the K-calibrated direction spans a genuine linear behavioural axis,
-    # reversed steering must push the metric *below* baseline, confirming
-    # bidirectionality and ruling out a magnitude artefact.
-    log.info("    [5/5] pca_k_calibrated_reversed...")
+    # pca_k_calibrated_reversed — same direction, α = −1.
+    #
+    # Negating alpha gives −K_l = −μ̄_l/√d, a symmetric −1.6% relative
+    # perturbation.  This should INDUCE the suppressed behaviour (sycophancy,
+    # informality, uncalibrated certainty, etc.), pushing every metric below
+    # baseline.  Bidirectional linearity confirms the directions span genuine
+    # behavioural axes and are not magnitude artefacts.
+    #
+    # Implementation note: no re-fit needed — the directions from the
+    # pca_k_calibrated fit are reused; only alpha is negated.
+    log.info("    [5/5] pca_k_calibrated_reversed (alpha=-1.0)...")
     _run_condition(
         "pca_k_calibrated_reversed",
         baker.generate(
