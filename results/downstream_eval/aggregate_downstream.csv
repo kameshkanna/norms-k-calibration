@@ -1,0 +1,26 @@
+condition,metric_value,n,delta_vs_baseline,delta_vs_pca_uncal,model,model_key,behavior
+none,1.0,50,0.0,0.0,Gemma 2 9B,gemma_9b,refusal_calibration
+raw_addition,1.0,50,0.0,0.0,Gemma 2 9B,gemma_9b,refusal_calibration
+pca_uncalibrated,1.0,50,0.0,0.0,Gemma 2 9B,gemma_9b,refusal_calibration
+pca_k_calibrated,1.0,50,0.0,0.0,Gemma 2 9B,gemma_9b,refusal_calibration
+pca_k_calibrated_reversed,0.98,50,-0.020000000000000018,-0.020000000000000018,Gemma 2 9B,gemma_9b,refusal_calibration
+none,0.6,50,0.0,-0.06000000000000005,Gemma 2 9B,gemma_9b,sycophancy_suppression
+raw_addition,0.7,50,0.09999999999999998,0.039999999999999925,Gemma 2 9B,gemma_9b,sycophancy_suppression
+pca_uncalibrated,0.66,50,0.06000000000000005,0.0,Gemma 2 9B,gemma_9b,sycophancy_suppression
+pca_k_calibrated,0.7,50,0.09999999999999998,0.039999999999999925,Gemma 2 9B,gemma_9b,sycophancy_suppression
+pca_k_calibrated_reversed,0.7,50,0.09999999999999998,0.039999999999999925,Gemma 2 9B,gemma_9b,sycophancy_suppression
+none,-0.0015747379104778208,50,0.0,-0.0002348181572408045,Gemma 2 9B,gemma_9b,formality
+raw_addition,-0.0033522933681112347,50,-0.001777555457633414,-0.0020123736148742184,Gemma 2 9B,gemma_9b,formality
+pca_uncalibrated,-0.0013399197532370163,50,0.0002348181572408045,0.0,Gemma 2 9B,gemma_9b,formality
+pca_k_calibrated,-0.002771222395545019,50,-0.001196484485067198,-0.0014313026423080025,Gemma 2 9B,gemma_9b,formality
+pca_k_calibrated_reversed,-0.0006174342029493339,50,0.0009573037075284869,0.0007224855502876824,Gemma 2 9B,gemma_9b,formality
+none,1.0,50,0.0,0.24,Gemma 2 9B,gemma_9b,uncertainty_expression
+raw_addition,0.7,50,-0.30000000000000004,-0.06000000000000005,Gemma 2 9B,gemma_9b,uncertainty_expression
+pca_uncalibrated,0.76,50,-0.24,0.0,Gemma 2 9B,gemma_9b,uncertainty_expression
+pca_k_calibrated,0.86,50,-0.14,0.09999999999999998,Gemma 2 9B,gemma_9b,uncertainty_expression
+pca_k_calibrated_reversed,1.16,50,0.15999999999999992,0.3999999999999999,Gemma 2 9B,gemma_9b,uncertainty_expression
+none,124.92,50,0.0,-6.920000000000002,Gemma 2 9B,gemma_9b,verbosity_control
+raw_addition,129.72,50,4.799999999999997,-2.1200000000000045,Gemma 2 9B,gemma_9b,verbosity_control
+pca_uncalibrated,131.84,50,6.920000000000002,0.0,Gemma 2 9B,gemma_9b,verbosity_control
+pca_k_calibrated,139.44,50,14.519999999999996,7.599999999999994,Gemma 2 9B,gemma_9b,verbosity_control
+pca_k_calibrated_reversed,104.92,50,-20.0,-26.92,Gemma 2 9B,gemma_9b,verbosity_control
