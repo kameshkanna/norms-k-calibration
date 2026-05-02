@@ -106,6 +106,14 @@ Usage
 
   # Low-VRAM (quantised)
   python experiments/10_downstream_behavioral_eval.py --model llama_8b --load-in-4bit
+
+  # Benchmark cache management (run once, then server never re-downloads)
+  #   Push all cached benchmark JSONL files to a HuggingFace dataset repo:
+  python experiments/10_downstream_behavioral_eval.py \\
+      --push-cache --hf-cache-repo YOUR_HF_USERNAME/norms-k-benchmark-cache
+  #   On the server, pull them before running:
+  python experiments/10_downstream_behavioral_eval.py \\
+      --pull-cache --hf-cache-repo YOUR_HF_USERNAME/norms-k-benchmark-cache
 """
 
 from __future__ import annotations
@@ -396,11 +404,8 @@ def _load_alpacaeval(n: int = N_BENCHMARK_SAMPLES) -> List[str]:
     AlpacaEval instructions  (Li et al. 2023).
     Used to test verbosity: steered model should produce longer responses.
 
-    datasets >= 3.0 dropped custom loading-script support, so we try three
-    strategies in order before falling back to our synthetic set:
-      1. load_dataset without config name (parquet auto-detect, datasets >= 3.0)
-      2. load_dataset with config + trust_remote_code (datasets 2.x)
-      3. Download the JSON directly from HuggingFace Hub files API
+    Uses hf_hub_download to fetch the raw JSON file directly from the Hub,
+    bypassing the datasets library and its script-execution policy entirely.
     """
     cache = _cache_path("alpacaeval")
     if not cache.exists():
@@ -415,59 +420,76 @@ def _load_alpacaeval(n: int = N_BENCHMARK_SAMPLES) -> List[str]:
 
 
 def _alpacaeval_download(cache: Path) -> None:
-    """Try multiple strategies to populate the AlpacaEval cache."""
-    from datasets import load_dataset  # type: ignore[import-untyped]
+    """
+    Fetch AlpacaEval prompts and write them to cache.
 
-    # Strategy 1: parquet-native load (datasets >= 3.0, no script needed)
-    try:
-        log.info("AlpacaEval: trying parquet load (datasets >= 3.0)...")
-        ds = load_dataset("tatsu-lab/alpaca_eval", split="eval")
-        with cache.open("w", encoding="utf-8") as fh:
-            for row in ds:
-                fh.write(json.dumps({"prompt": row["instruction"]}) + "\n")
-        log.info("AlpacaEval: downloaded %d prompts.", sum(1 for _ in cache.open()))
-        return
-    except Exception as e1:
-        log.debug("Strategy 1 failed: %s", e1)
+    Strategy 1 — hf_hub_download (huggingface_hub >=0.23, no datasets needed):
+        Downloads the raw alpaca_eval.json from the Hub file store.
+        This is immune to the datasets >=3.0 script-execution policy.
 
-    # Strategy 2: explicit config + trust_remote_code (datasets 2.x)
+    Strategy 2 — urllib direct download (no Python deps):
+        Falls back to fetching the same JSON via HTTPS.
+
+    Strategy 3 — synthetic fallback (offline / firewall):
+        50 open-ended instructions that reliably produce variable-length
+        responses for the verbosity_control metric.
+    """
+    # Strategy 1: hf_hub_download — bypasses `datasets` entirely
     try:
-        log.info("AlpacaEval: trying trust_remote_code load (datasets 2.x)...")
-        ds = load_dataset(
-            "tatsu-lab/alpaca_eval", "alpaca_eval",
-            split="eval", trust_remote_code=True,
+        log.info("AlpacaEval: fetching via hf_hub_download ...")
+        from huggingface_hub import hf_hub_download  # type: ignore[import-untyped]
+        local_path = hf_hub_download(
+            repo_id="tatsu-lab/alpaca_eval",
+            filename="alpaca_eval/alpaca_eval.json",
+            repo_type="dataset",
         )
-        with cache.open("w", encoding="utf-8") as fh:
-            for row in ds:
-                fh.write(json.dumps({"prompt": row["instruction"]}) + "\n")
-        return
-    except Exception as e2:
-        log.debug("Strategy 2 failed: %s", e2)
-
-    # Strategy 3: direct JSON download from HuggingFace Hub files API
-    try:
-        log.info("AlpacaEval: trying direct Hub JSON download...")
-        url = (
-            "https://huggingface.co/datasets/tatsu-lab/alpaca_eval"
-            "/resolve/main/alpaca_eval/alpaca_eval.json"
-        )
-        raw = urllib.request.urlopen(url, timeout=60).read().decode("utf-8")  # noqa: S310
-        records = json.loads(raw)
+        with open(local_path, encoding="utf-8") as fh:
+            records = json.load(fh)
         with cache.open("w", encoding="utf-8") as fh:
             for rec in records:
                 instruction = rec.get("instruction") or rec.get("prompt", "")
                 if instruction:
                     fh.write(json.dumps({"prompt": instruction}) + "\n")
+        n_written = sum(1 for _ in cache.open(encoding="utf-8"))
+        log.info("AlpacaEval: cached %d prompts.", n_written)
         return
-    except Exception as e3:
-        log.debug("Strategy 3 failed: %s", e3)
+    except Exception as e1:
+        log.debug("hf_hub_download failed: %s", e1)
+
+    # Strategy 2: direct urllib download (no huggingface_hub required)
+    _HF_ALPACA_URLS = [
+        (
+            "https://huggingface.co/datasets/tatsu-lab/alpaca_eval"
+            "/resolve/main/alpaca_eval/alpaca_eval.json"
+        ),
+        # mirror: raw GitHub file from the alpaca_eval source repo
+        (
+            "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval"
+            "/main/src/alpaca_eval/evaluators_configs/alpaca_eval/alpaca_eval.json"
+        ),
+    ]
+    for url in _HF_ALPACA_URLS:
+        try:
+            log.info("AlpacaEval: fetching via urllib from %s ...", url)
+            raw = urllib.request.urlopen(url, timeout=60).read().decode("utf-8")  # noqa: S310
+            records = json.loads(raw)
+            with cache.open("w", encoding="utf-8") as fh:
+                for rec in records:
+                    instruction = rec.get("instruction") or rec.get("prompt", "")
+                    if instruction:
+                        fh.write(json.dumps({"prompt": instruction}) + "\n")
+            n_written = sum(1 for _ in cache.open(encoding="utf-8"))
+            log.info("AlpacaEval: cached %d prompts from %s.", n_written, url)
+            return
+        except Exception as exc:
+            log.debug("urllib download from %s failed: %s", url, exc)
 
     log.warning("All AlpacaEval download strategies failed — using synthetic fallback.")
     _write_synthetic_verbosity_fallback(cache)
 
 
 def _write_synthetic_verbosity_fallback(cache: Path) -> None:
-    """60 open-ended instructions that elicit variable-length responses."""
+    """100 open-ended instructions that elicit variable-length responses."""
     prompts = [
         "Explain the theory of relativity in simple terms.",
         "Describe the causes and consequences of the French Revolution.",
@@ -519,7 +541,7 @@ def _write_synthetic_verbosity_fallback(cache: Path) -> None:
         "Describe the major milestones in space exploration.",
         "How does a compiler turn source code into a running program?",
         "Explain what makes a good scientific experiment.",
-    ] * 2  # 100 total to ensure we have plenty for n=50
+    ] * 2  # 100 total
     with cache.open("w", encoding="utf-8") as fh:
         for p in prompts:
             fh.write(json.dumps({"prompt": p}) + "\n")
@@ -1052,6 +1074,61 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
+def _push_benchmark_cache(repo_id: str) -> None:
+    """
+    Upload all cached benchmark JSONL files to a HuggingFace dataset repo.
+
+    Creates the repo if it does not exist.  Run once from a machine that has
+    already downloaded the benchmarks; the server can then pull them with
+    --pull-cache instead of re-downloading from the original sources.
+    """
+    from huggingface_hub import HfApi  # type: ignore[import-untyped]
+    api = HfApi()
+    api.create_repo(repo_id=repo_id, repo_type="dataset", exist_ok=True, private=True)
+
+    jsonl_files = list(_BENCHMARK_CACHE_DIR.glob("*.jsonl"))
+    if not jsonl_files:
+        log.warning("No JSONL files found in %s — nothing to push.", _BENCHMARK_CACHE_DIR)
+        return
+
+    for path in jsonl_files:
+        log.info("Pushing %s → %s ...", path.name, repo_id)
+        api.upload_file(
+            path_or_fileobj=str(path),
+            path_in_repo=path.name,
+            repo_id=repo_id,
+            repo_type="dataset",
+        )
+    log.info("Pushed %d benchmark cache files to https://huggingface.co/datasets/%s", len(jsonl_files), repo_id)
+
+
+def _pull_benchmark_cache(repo_id: str) -> None:
+    """
+    Download all benchmark JSONL files from a HuggingFace dataset repo into
+    the local benchmark cache directory.  Run on the server before evaluation
+    to avoid re-downloading from the original sources.
+    """
+    from huggingface_hub import hf_hub_download, list_repo_files  # type: ignore[import-untyped]
+    _BENCHMARK_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    jsonl_files = [f for f in list_repo_files(repo_id, repo_type="dataset") if f.endswith(".jsonl")]
+    if not jsonl_files:
+        log.warning("No JSONL files found in repo %s.", repo_id)
+        return
+
+    for fname in jsonl_files:
+        dest = _BENCHMARK_CACHE_DIR / fname
+        if dest.exists():
+            log.info("  Already cached: %s — skipping.", fname)
+            continue
+        log.info("  Pulling %s ...", fname)
+        local = hf_hub_download(repo_id=repo_id, filename=fname, repo_type="dataset")
+        import shutil
+        shutil.copy(local, dest)
+
+    log.info("Pulled %d benchmark cache files from %s", len(jsonl_files), repo_id)
+
+
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Downstream behavioral evaluation")
     p.add_argument("--model", default="llama_8b",
@@ -1077,11 +1154,32 @@ def _parse_args() -> argparse.Namespace:
                    help="Max prompts per generation call (default 50, lower if OOM).")
     p.add_argument("--force-rerun", action="store_true",
                    help="Ignore cached results and rerun all conditions.")
+    # Benchmark cache management
+    p.add_argument("--push-cache", action="store_true",
+                   help="Push local benchmark JSONL cache to --hf-cache-repo and exit.")
+    p.add_argument("--pull-cache", action="store_true",
+                   help="Pull benchmark JSONL cache from --hf-cache-repo and exit.")
+    p.add_argument("--hf-cache-repo", default="",
+                   help="HuggingFace dataset repo ID for benchmark cache (user/repo-name).")
     return p.parse_args()
 
 
 def main() -> None:
     args = _parse_args()
+
+    # Benchmark cache push/pull — run and exit, no model loading needed
+    if args.push_cache or args.pull_cache:
+        if not args.hf_cache_repo:
+            raise ValueError("--hf-cache-repo is required with --push-cache / --pull-cache")
+        if args.push_cache:
+            # Ensure all benchmarks are downloaded locally first
+            log.info("Pre-downloading all benchmarks before push ...")
+            for behavior in BEHAVIORS:
+                _BENCHMARK_LOADER[behavior]()
+            _push_benchmark_cache(args.hf_cache_repo)
+        else:
+            _pull_benchmark_cache(args.hf_cache_repo)
+        return
 
     model_keys: List[str] = (
         list(WSS_MODEL_KEYS) if args.model == "all" else [args.model]
