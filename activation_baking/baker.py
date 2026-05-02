@@ -893,13 +893,17 @@ class Baker:
                 layer_idx = layer_to_idx[layer_name]
                 down_proj_name = self._model_info.mlp_down_proj_names[layer_idx]
 
-                # Compute the steering vector in float32 on CPU.
-                # Formula: alpha * k * components^T @ (components @ mean_diff)
+                # Compute the unit-normalised steering vector in float32 on CPU.
+                # Must match apply_steering normalisation to keep fused and
+                # hook-based steering numerically identical.
                 components = bd.components.float().cpu()   # [k, hidden]
                 mean_diff = bd.mean_diff.float().cpu()     # [hidden]
-                projection_weights = torch.mv(components, mean_diff)       # [k]
+                projection_weights = torch.mv(components, mean_diff)          # [k]
                 steering_vector = torch.mv(components.T, projection_weights)  # [hidden]
-                bias_delta = (alpha * bd.k_value * steering_vector)        # [hidden]
+                sv_norm = torch.linalg.vector_norm(steering_vector)
+                if sv_norm > 1e-8:
+                    steering_vector = steering_vector / sv_norm
+                bias_delta = (alpha * bd.k_value * steering_vector)           # [hidden]
 
                 # Retrieve the down_proj Linear module from the copy.
                 down_proj: nn.Linear = get_layer_module(model_copy, down_proj_name)  # type: ignore[assignment]

@@ -282,10 +282,16 @@ class PCADirector:
         # Shape: [k]  (purely vectorised, no Python loop)
         projection_weights = torch.mv(components, mean_diff)  # [k]
 
-        # Weighted sum of components → steering vector [hidden_size]
-        steering_vector = torch.mv(
-            components.T, projection_weights
-        )  # [h] = components^T @ weights
+        # Weighted sum of components → steering vector [hidden_size].
+        # This is the projection of mean_diff onto the PCA subspace; its
+        # magnitude scales with ||mean_diff|| ≈ μ̄_l.  We normalise to unit
+        # norm so that the only scale factor is alpha × k_value, keeping the
+        # relative perturbation at alpha × K_l / μ̄_l = alpha / √d ≈ 1.6%
+        # regardless of model architecture or layer depth.
+        steering_vector = torch.mv(components.T, projection_weights)  # [h]
+        sv_norm = torch.linalg.vector_norm(steering_vector)
+        if sv_norm > 1e-8:
+            steering_vector = steering_vector / sv_norm
 
         # Scale and broadcast
         scaled_vector = (alpha * directions.k_value * steering_vector).unsqueeze(0)  # [1, h]
