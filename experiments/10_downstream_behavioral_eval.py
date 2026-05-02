@@ -395,20 +395,16 @@ def _load_alpacaeval(n: int = N_BENCHMARK_SAMPLES) -> List[str]:
     """
     AlpacaEval instructions  (Li et al. 2023).
     Used to test verbosity: steered model should produce longer responses.
-    Falls back to synthetic if download fails.
+
+    datasets >= 3.0 dropped custom loading-script support, so we try three
+    strategies in order before falling back to our synthetic set:
+      1. load_dataset without config name (parquet auto-detect, datasets >= 3.0)
+      2. load_dataset with config + trust_remote_code (datasets 2.x)
+      3. Download the JSON directly from HuggingFace Hub files API
     """
     cache = _cache_path("alpacaeval")
     if not cache.exists():
-        try:
-            from datasets import load_dataset  # type: ignore[import-untyped]
-            log.info("Downloading AlpacaEval...")
-            ds = load_dataset("tatsu-lab/alpaca_eval", "alpaca_eval", split="eval")
-            with cache.open("w", encoding="utf-8") as fh:
-                for row in ds:
-                    fh.write(json.dumps({"prompt": row["instruction"]}) + "\n")
-        except Exception as exc:
-            log.warning("AlpacaEval download failed (%s). Using synthetic fallback.", exc)
-            _write_synthetic_verbosity_fallback(cache)
+        _alpacaeval_download(cache)
 
     with cache.open(encoding="utf-8") as fh:
         all_prompts = [json.loads(l)["prompt"] for l in fh if l.strip()]
@@ -418,14 +414,112 @@ def _load_alpacaeval(n: int = N_BENCHMARK_SAMPLES) -> List[str]:
     return [all_prompts[i] for i in sorted(idx)]
 
 
+def _alpacaeval_download(cache: Path) -> None:
+    """Try multiple strategies to populate the AlpacaEval cache."""
+    from datasets import load_dataset  # type: ignore[import-untyped]
+
+    # Strategy 1: parquet-native load (datasets >= 3.0, no script needed)
+    try:
+        log.info("AlpacaEval: trying parquet load (datasets >= 3.0)...")
+        ds = load_dataset("tatsu-lab/alpaca_eval", split="eval")
+        with cache.open("w", encoding="utf-8") as fh:
+            for row in ds:
+                fh.write(json.dumps({"prompt": row["instruction"]}) + "\n")
+        log.info("AlpacaEval: downloaded %d prompts.", sum(1 for _ in cache.open()))
+        return
+    except Exception as e1:
+        log.debug("Strategy 1 failed: %s", e1)
+
+    # Strategy 2: explicit config + trust_remote_code (datasets 2.x)
+    try:
+        log.info("AlpacaEval: trying trust_remote_code load (datasets 2.x)...")
+        ds = load_dataset(
+            "tatsu-lab/alpaca_eval", "alpaca_eval",
+            split="eval", trust_remote_code=True,
+        )
+        with cache.open("w", encoding="utf-8") as fh:
+            for row in ds:
+                fh.write(json.dumps({"prompt": row["instruction"]}) + "\n")
+        return
+    except Exception as e2:
+        log.debug("Strategy 2 failed: %s", e2)
+
+    # Strategy 3: direct JSON download from HuggingFace Hub files API
+    try:
+        log.info("AlpacaEval: trying direct Hub JSON download...")
+        url = (
+            "https://huggingface.co/datasets/tatsu-lab/alpaca_eval"
+            "/resolve/main/alpaca_eval/alpaca_eval.json"
+        )
+        raw = urllib.request.urlopen(url, timeout=60).read().decode("utf-8")  # noqa: S310
+        records = json.loads(raw)
+        with cache.open("w", encoding="utf-8") as fh:
+            for rec in records:
+                instruction = rec.get("instruction") or rec.get("prompt", "")
+                if instruction:
+                    fh.write(json.dumps({"prompt": instruction}) + "\n")
+        return
+    except Exception as e3:
+        log.debug("Strategy 3 failed: %s", e3)
+
+    log.warning("All AlpacaEval download strategies failed — using synthetic fallback.")
+    _write_synthetic_verbosity_fallback(cache)
+
+
 def _write_synthetic_verbosity_fallback(cache: Path) -> None:
+    """60 open-ended instructions that elicit variable-length responses."""
     prompts = [
-        "Explain photosynthesis.", "Describe the French Revolution.",
-        "What is machine learning?", "How does the internet work?",
-        "Explain the causes of World War One.", "What is quantum computing?",
-        "Describe the water cycle.", "How do vaccines work?",
-        "Explain supply and demand.", "What is the theory of evolution?",
-    ] * 6
+        "Explain the theory of relativity in simple terms.",
+        "Describe the causes and consequences of the French Revolution.",
+        "What is machine learning and how does it work?",
+        "Explain how the internet works, from physical cables to web pages.",
+        "What were the main causes of World War One?",
+        "Explain quantum computing and why it matters.",
+        "Describe the water cycle and its role in climate.",
+        "How do mRNA vaccines work?",
+        "Explain supply and demand with a real-world example.",
+        "What is the theory of evolution and the evidence for it?",
+        "Describe how a modern CPU executes a program.",
+        "What is dark matter and why do physicists think it exists?",
+        "Explain the difference between supervised and unsupervised learning.",
+        "How does CRISPR gene editing work?",
+        "Describe the history and significance of the Silk Road.",
+        "What causes inflation, and how do central banks control it?",
+        "Explain how GPS satellites determine your location.",
+        "What is the significance of the Turing Test in AI?",
+        "Describe the structure and function of DNA.",
+        "Explain plate tectonics and how mountains form.",
+        "How does a transformer neural network work?",
+        "What is the difference between a virus and a bacterium?",
+        "Explain the greenhouse effect and its link to climate change.",
+        "Describe the key events of the Cold War.",
+        "How does the human immune system fight infection?",
+        "Explain the concept of compound interest.",
+        "What is consciousness and why is it hard to explain scientifically?",
+        "Describe the architecture of the internet (TCP/IP, DNS, HTTP).",
+        "How are black holes formed and detected?",
+        "Explain the difference between correlation and causation.",
+        "What is blockchain technology and how does it work?",
+        "Describe how photosynthesis converts light to energy.",
+        "Explain the role of the Federal Reserve in the US economy.",
+        "What is entropy in thermodynamics?",
+        "How does a nuclear reactor generate electricity?",
+        "Describe the main schools of philosophy.",
+        "What causes earthquakes and how are they measured?",
+        "Explain how reinforcement learning works with an example.",
+        "What is the difference between RAM and storage?",
+        "Describe the structure of the human brain and its main regions.",
+        "How does natural selection lead to speciation?",
+        "Explain Keynesian economics in plain language.",
+        "What are the main differences between TCP and UDP?",
+        "Describe the history of the Roman Empire.",
+        "How does an MRI machine work?",
+        "Explain the significance of Gödel's incompleteness theorems.",
+        "What is the ozone layer and why does it matter?",
+        "Describe the major milestones in space exploration.",
+        "How does a compiler turn source code into a running program?",
+        "Explain what makes a good scientific experiment.",
+    ] * 2  # 100 total to ensure we have plenty for n=50
     with cache.open("w", encoding="utf-8") as fh:
         for p in prompts:
             fh.write(json.dumps({"prompt": p}) + "\n")
