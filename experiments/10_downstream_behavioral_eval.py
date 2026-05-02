@@ -2,7 +2,7 @@
 experiments/10_downstream_behavioral_eval.py
 
 Downstream Behavioral Evaluation — measures actual text-generation quality
-under five steering conditions across all five behavioral axes and four
+under five steering conditions across all five behavioral axes and three
 architectures.
 
 Design
@@ -51,6 +51,25 @@ Per-behavior automated text metrics
   verbosity_control      → mean_word_count: average word count of the
                            generated completion.
 
+H100 speed-up flags
+-------------------
+  --dtype bf16          Use bfloat16 (H100 native; safer dynamic range than
+                        fp16 for large-norm models like Gemma/Qwen).
+  --flash-attn          Enable Flash Attention 2 (install: pip install flash-attn).
+  --compile             torch.compile the model (mode=reduce-overhead).
+                        Adds ~1–2 min warmup but speeds up repeated generation.
+  --gen-batch-size N    Max prompts per generation call (default 50).
+                        Lower to 16–25 if you see OOM on smaller GPUs.
+
+Key optimisation: contrastive diff caching
+------------------------------------------
+  Baker.fit() normally runs extract_contrastive_diffs() on every call, so
+  three fit conditions (raw_addition, pca_uncalibrated, pca_k_calibrated)
+  would each do 36 × 2 forward passes through a 7B model.  Instead we call
+  extract_contrastive_diffs() once per behavior and reuse the result for all
+  three direction-fitting calls, cutting the fitting phase from 3 passes to 1.
+  PCA fit itself (sklearn on 36×4096 numpy array) is negligible.
+
 Outputs  (all under results/downstream_eval/)
 ----------------------------------------------
   {model_key}/{behavior}/per_prompt_results.csv
@@ -68,7 +87,7 @@ Outputs  (all under results/downstream_eval/)
 
 Usage
 -----
-  # Sanity check — one model, one behavior (~5 min on A100)
+  # Sanity check — one model, one behavior
   python experiments/10_downstream_behavioral_eval.py \\
       --model llama_8b --behavior refusal_calibration
 
@@ -78,9 +97,12 @@ Usage
   #   gemma_9b  — dual-norm, very large  (μ̄_0 ≈ 80.6, K_l ≈ 1.35–25.3)
   # Qwen sits between Llama and Gemma: K=1 gives only ~0.22% relative
   # perturbation at late layers — directly proving the formula is necessary.
-  python experiments/10_downstream_behavioral_eval.py --model llama_8b --behavior all
-  python experiments/10_downstream_behavioral_eval.py --model qwen_7b  --behavior all
-  python experiments/10_downstream_behavioral_eval.py --model gemma_9b --behavior all
+  python experiments/10_downstream_behavioral_eval.py \\
+      --model llama_8b --behavior all --dtype bf16 --flash-attn
+  python experiments/10_downstream_behavioral_eval.py \\
+      --model qwen_7b  --behavior all --dtype bf16 --flash-attn
+  python experiments/10_downstream_behavioral_eval.py \\
+      --model gemma_9b --behavior all --dtype bf16 --flash-attn
 
   # Low-VRAM (quantised)
   python experiments/10_downstream_behavioral_eval.py --model llama_8b --load-in-4bit
@@ -96,7 +118,7 @@ import re
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib
 matplotlib.use("Agg")
@@ -181,6 +203,16 @@ _MODEL_KEY_TO_PROFILE: Dict[str, str] = {
     "mistral_7b": "mistral",
 }
 
+_DTYPE_MAP: Dict[str, torch.dtype] = {
+    "fp16": torch.float16,
+    "bf16": torch.bfloat16,
+    "fp32": torch.float32,
+}
+
+
+# ---------------------------------------------------------------------------
+# K-value loading
+# ---------------------------------------------------------------------------
 
 def _load_precomputed_k_values(model_key: str) -> Dict[str, float]:
     """
@@ -188,7 +220,7 @@ def _load_precomputed_k_values(model_key: str) -> Dict[str, float]:
 
     Returns a dict mapping layer_name (e.g. 'model.layers.8') → K_l scalar.
     Falls back to an empty dict if the CSV is not found, in which case
-    Baker will re-derive K from the train prompts (k_calibration='auto').
+    _fit_from_diffs will recompute norms from the train prompts.
     """
     short = _MODEL_KEY_TO_PROFILE.get(model_key)
     if short is None:
@@ -212,33 +244,6 @@ def _load_precomputed_k_values(model_key: str) -> Dict[str, float]:
         min(k_values.values()), max(k_values.values()),
     )
     return k_values
-
-
-def _inject_k_values(baker: Baker, precomputed_k: Dict[str, float]) -> None:
-    """
-    Replace Baker's K values with pre-computed values from experiment 01.
-
-    Only layers present in baker._directions AND precomputed_k are updated.
-    Layers not covered fall back to their existing K (1.0 when k_calibration='none').
-    """
-    if not precomputed_k:
-        return
-
-    matched: Dict[str, float] = {
-        layer: precomputed_k[layer]
-        for layer in baker._directions
-        if layer in precomputed_k
-    }
-    unmatched = set(baker._directions.keys()) - set(precomputed_k.keys())
-    if unmatched:
-        log.warning("No pre-computed K for layers: %s — keeping K=1.", sorted(unmatched))
-
-    baker._director.set_k_values(baker._directions, matched)
-    baker._k_values = {**baker._k_values, **matched}
-    log.info(
-        "Injected pre-computed K values into %d / %d fitted layers.",
-        len(matched), len(baker._directions),
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -599,6 +604,130 @@ def _train_split(n: int = 45) -> List[int]:
     return perm[: int(0.8 * n)]
 
 
+def _target_layer_names(baker: Baker) -> List[str]:
+    """
+    Return the middle-50% layer names that Baker.fit() targets by default.
+
+    Mirrors Baker.fit()'s layer-selection logic so that _fit_from_diffs
+    targets the same layers as a plain baker.fit() call would.
+    """
+    n = baker._model_info.num_layers
+    q = n // 4
+    return baker._model_info.layer_module_names[q : n - q]
+
+
+def _fit_from_diffs(
+    baker: Baker,
+    activation_diffs: Dict[str, torch.Tensor],
+    target_layers: List[str],
+    condition: str,
+    precomputed_k: Dict[str, float],
+    norm_prompts: Optional[List[str]] = None,
+    n_components: int = 5,
+) -> None:
+    """
+    Fit Baker's directions from pre-extracted activation diffs without
+    running another model forward pass.
+
+    Parameters
+    ----------
+    baker:
+        Baker instance whose _directions/_k_values will be updated in-place.
+    activation_diffs:
+        Output of baker._extractor.extract_contrastive_diffs(), computed once
+        and reused across all three fit conditions.
+    target_layers:
+        Layer names covered by activation_diffs (output of _target_layer_names).
+    condition:
+        One of 'raw_addition', 'pca_uncalibrated', 'pca_k_calibrated'.
+    precomputed_k:
+        Pre-computed K values from experiment 01 norm profiles (may be empty).
+    norm_prompts:
+        Fallback prompts used to compute K via compute_layer_norms() when
+        precomputed_k is unavailable.  Only used for 'pca_k_calibrated'.
+    n_components:
+        Number of PCA components (ignored for raw_addition).
+    """
+    if condition == "raw_addition":
+        directions = baker._fit_mean_diff_directions(activation_diffs, target_layers)
+        k_values: Dict[str, float] = {layer: 1.0 for layer in directions}
+
+    elif condition == "pca_uncalibrated":
+        directions = baker._director.fit(activation_diffs, n_components=n_components)
+        k_values = {layer: 1.0 for layer in directions}
+
+    elif condition == "pca_k_calibrated":
+        directions = baker._director.fit(activation_diffs, n_components=n_components)
+        k_values = {layer: 1.0 for layer in directions}
+
+        if precomputed_k:
+            matched = {
+                layer: precomputed_k[layer]
+                for layer in directions
+                if layer in precomputed_k
+            }
+            unmatched = set(directions) - set(precomputed_k)
+            if unmatched:
+                log.warning("No pre-computed K for layers: %s — keeping K=1.", sorted(unmatched))
+            k_values.update(matched)
+            log.info(
+                "Injected pre-computed K values into %d / %d fitted layers.",
+                len(matched), len(directions),
+            )
+        elif norm_prompts:
+            log.warning(
+                "No norm profile found — computing K from %d train prompts (fallback).",
+                len(norm_prompts),
+            )
+            layer_norms = baker._extractor.compute_layer_norms(
+                prompts=norm_prompts[:50], layer_names=target_layers
+            )
+            k_values = baker._calibrator.calibrate_all_layers(
+                layer_norms=layer_norms, hidden_size=baker._model_info.hidden_size
+            )
+            _gc()
+        else:
+            log.warning(
+                "No pre-computed K and no norm_prompts — using K=1 for pca_k_calibrated."
+            )
+
+    else:
+        raise ValueError(f"_fit_from_diffs: unknown condition '{condition}'")
+
+    baker._director.set_k_values(directions, k_values)
+    baker._directions = directions
+    baker._k_values = k_values
+    baker._fitted_layers = list(directions.keys())
+    baker._is_fitted = True
+
+
+def _generate_batched(
+    baker: Baker,
+    prompts: List[str],
+    batch_size: int,
+    steer: bool = True,
+    alpha: float = 1.0,
+    **gen_kwargs: Any,
+) -> List[str]:
+    """
+    Run generation in sub-batches to avoid OOM on smaller GPUs.
+
+    When batch_size >= len(prompts) this is a single call, matching the
+    original behaviour.  On H100 the full 50-prompt batch fits comfortably,
+    but the flag is available for constrained environments.
+    """
+    results: List[str] = []
+    for i in range(0, len(prompts), batch_size):
+        batch = prompts[i : i + batch_size]
+        if steer:
+            results.extend(baker.generate(batch, alpha=alpha, **gen_kwargs))
+        else:
+            results.extend(baker.generate_baseline(batch, **gen_kwargs))
+        if len(prompts) > batch_size:
+            _gc()
+    return results
+
+
 # ---------------------------------------------------------------------------
 # Core evaluation loop
 # ---------------------------------------------------------------------------
@@ -608,10 +737,16 @@ def _evaluate_behavior(
     behavior: str,
     out_dir: Path,
     precomputed_k: Dict[str, float],
+    target_layers: List[str],
+    gen_batch_size: int,
 ) -> pd.DataFrame:
     """
     Fit directions on train split of contrastive pairs, then evaluate on
     N_BENCHMARK_SAMPLES prompts drawn from the corresponding benchmark.
+
+    Contrastive diffs are extracted exactly once per behavior, then reused
+    across raw_addition / pca_uncalibrated / pca_k_calibrated fits — cutting
+    the fitting-phase GPU forward passes by 3×.
 
     Returns a per-condition summary DataFrame saved to out_dir/summary.csv.
     """
@@ -630,11 +765,9 @@ def _evaluate_behavior(
 
     metric_fn = _METRIC_FN[behavior]
     all_records: List[dict] = []
+    gen_kwargs: Dict[str, Any] = dict(max_new_tokens=MAX_NEW_TOKENS, do_sample=False)
 
-    def _run_condition(
-        condition: str,
-        responses: List[str],
-    ) -> None:
+    def _record(condition: str, responses: List[str]) -> None:
         for idx, (prompt, resp) in enumerate(zip(bench_prompts, responses)):
             all_records.append({
                 "condition":     condition,
@@ -644,81 +777,79 @@ def _evaluate_behavior(
                 "metric_value":  metric_fn([resp]),
             })
 
-    # none — baseline
+    # [1/5] Baseline — no steering hook, no fit needed
     log.info("    [1/5] baseline (none)...")
-    _run_condition(
+    _record(
         "none",
-        baker.generate_baseline(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
+        _generate_batched(baker, bench_prompts, gen_batch_size, steer=False, **gen_kwargs),
     )
 
-    # raw_addition — mean diff, K=1 (naive baseline, no PCA, no calibration)
-    log.info("    [2/5] raw_addition...")
-    baker.fit(train_pos, train_neg, use_mean_diff=True, k_calibration="none")
-    _run_condition(
+    # Extract contrastive diffs ONCE for all three direction-fitting conditions.
+    # raw_addition, pca_uncalibrated, and pca_k_calibrated all run the same
+    # 36-pair forward sweep — computing it once eliminates 2/3 of fitting cost.
+    log.info("    Extracting contrastive diffs (single pass for all 3 fit conditions)...")
+    activation_diffs: Dict[str, torch.Tensor] = baker._extractor.extract_contrastive_diffs(
+        positive_prompts=train_pos,
+        negative_prompts=train_neg,
+        layer_names=target_layers,
+    )
+    _gc()
+
+    # [2/5] raw_addition — mean diff, K=1  (Turner et al. 2023 baseline)
+    #
+    # K=1 is deliberately wrong: relative perturbation = K/μ̄_l = 1/μ̄_l, which
+    # ranges from ~389% (Mistral layer 0, μ̄≈0.26) to ~0.07% (Gemma layer 41,
+    # μ̄≈1514). Over-steering and under-steering are both evidence for calibration.
+    log.info("    [2/5] raw_addition (mean diff, K=1)...")
+    _fit_from_diffs(baker, activation_diffs, target_layers, "raw_addition", precomputed_k)
+    _record(
         "raw_addition",
-        baker.generate(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
+        _generate_batched(baker, bench_prompts, gen_batch_size, **gen_kwargs),
     )
     _gc()
 
-    # pca_uncalibrated — PCA PC1, K=1 uniformly across all layers and models.
-    #
-    # NOTE on scale: K=1 is deliberately "wrong" — this is the ablation baseline
-    # that proves calibration matters.  The relative perturbation K/μ̄_l = 1/μ̄_l
-    # varies from ~389% (Mistral layer 0, μ̄≈0.26) to ~0.07% (Gemma layer 41,
-    # μ̄≈1514).  Over-steered layers will produce degraded or incoherent text;
-    # under-steered layers will show no effect.  Both failure modes are evidence
-    # for the K-calibration formula.
-    log.info("    [3/5] pca_uncalibrated (K=1, intentionally mis-scaled)...")
-    baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="none")
-    _run_condition(
+    # [3/5] pca_uncalibrated — PCA PC1, K=1 uniformly
+    log.info("    [3/5] pca_uncalibrated (PC1, K=1, intentionally mis-scaled)...")
+    _fit_from_diffs(baker, activation_diffs, target_layers, "pca_uncalibrated", precomputed_k)
+    _record(
         "pca_uncalibrated",
-        baker.generate(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
+        _generate_batched(baker, bench_prompts, gen_batch_size, **gen_kwargs),
     )
     _gc()
 
-    # pca_k_calibrated — PCA PC1, K_l = μ̄_l / √d per layer.
+    # [4/5] pca_k_calibrated — PCA PC1, K_l = μ̄_l / √d
     #
-    # Directions are fitted fresh from behavioral train pairs (PCA is
-    # behavior-specific).  K values are loaded from experiment 01's norm
-    # profiles (computed on 50 general calibration prompts) rather than
-    # re-derived from the 36 behavioral train prompts.  This keeps the K
-    # values consistent with those reported in paper Figures 1–3.
-    #
-    # If norm profiles are unavailable, falls back to k_calibration="auto"
-    # which re-estimates K from the train prompts (slightly biased but usable).
-    #
-    # Self-normalisation: K_l / μ̄_l = 1/√d ≈ 1.56–1.67% is constant for ALL
-    # layers of ALL models, so alpha=1.0 gives a model-agnostic ~1.6% relative
-    # perturbation regardless of whether the model is Llama (K≈0.01–0.93) or
-    # Gemma (K≈1.3–25) or Qwen (K≈0.19–7.47).
-    log.info("    [4/5] pca_k_calibrated (pre-computed K=mu/sqrt(d), alpha=1.0)...")
-    if precomputed_k:
-        baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="none")
-        _inject_k_values(baker, precomputed_k)
-    else:
-        baker.fit(train_pos, train_neg, use_mean_diff=False, k_calibration="auto")
-    _run_condition(
+    # Directions fitted fresh from behavioral pairs (PCA is behavior-specific).
+    # K values from experiment 01 norm profiles (50 general calibration prompts)
+    # keep them consistent with Figures 1–3 in the paper.
+    # Self-normalisation: K_l / μ̄_l = 1/√d ≈ 1.56–1.67% constant across all
+    # layers and models → alpha=1.0 gives ~1.6% relative perturbation always.
+    log.info("    [4/5] pca_k_calibrated (K=μ̄/√d, alpha=1.0)...")
+    _fit_from_diffs(
+        baker, activation_diffs, target_layers, "pca_k_calibrated",
+        precomputed_k, norm_prompts=train_pos,
+    )
+    _record(
         "pca_k_calibrated",
-        baker.generate(bench_prompts, max_new_tokens=MAX_NEW_TOKENS, do_sample=False),
+        _generate_batched(baker, bench_prompts, gen_batch_size, **gen_kwargs),
     )
 
-    # pca_k_calibrated_reversed — same direction, α = −1.
+    # [5/5] pca_k_calibrated_reversed — same direction, α = −1
     #
-    # Negating alpha gives −K_l = −μ̄_l/√d, a symmetric −1.6% relative
-    # perturbation.  This should INDUCE the suppressed behaviour (sycophancy,
-    # informality, uncalibrated certainty, etc.), pushing every metric below
-    # baseline.  Bidirectional linearity confirms the directions span genuine
-    # behavioural axes and are not magnitude artefacts.
-    #
-    # Implementation note: no re-fit needed — the directions from the
-    # pca_k_calibrated fit are reused; only alpha is negated.
+    # Negating alpha → −K_l = −μ̄_l/√d, a symmetric −1.6% perturbation.
+    # This INDUCES the suppressed behaviour (sycophancy, informality, etc.),
+    # pushing metrics below baseline.  Bidirectional linearity rules out
+    # magnitude artefacts and confirms the directions span genuine axes.
+    # No re-fit: reuses pca_k_calibrated directions from the step above.
     log.info("    [5/5] pca_k_calibrated_reversed (alpha=-1.0)...")
-    _run_condition(
+    _record(
         "pca_k_calibrated_reversed",
-        baker.generate(
-            bench_prompts, alpha=-1.0, max_new_tokens=MAX_NEW_TOKENS, do_sample=False
-        ),
+        _generate_batched(baker, bench_prompts, gen_batch_size, alpha=-1.0, **gen_kwargs),
     )
+    _gc()
+
+    # Free diff cache now that all fits are done
+    del activation_diffs
     _gc()
 
     # --- Persist per-prompt results ---
@@ -801,7 +932,7 @@ def _make_figure(agg: pd.DataFrame) -> None:
     ax.set_ylabel("Normalised behavioral metric (row min→max = 0→1)", fontsize=9)
     ax.set_title(
         r"Downstream text-generation eval: K=$\bar{\mu}/\sqrt{d}$ vs ablations"
-        "\n(mean over 4 architectures, 50 benchmark prompts per behavior, greedy decoding)",
+        "\n(mean over 3 architectures, 50 benchmark prompts per behavior, greedy decoding)",
         fontsize=10,
     )
     ax.legend(fontsize=8, ncol=3, loc="upper right")
@@ -839,6 +970,17 @@ def _parse_args() -> argparse.Namespace:
                    help="Enable 4-bit NF4 quantisation (reduces VRAM ~60%%).")
     p.add_argument("--load-in-8bit", action="store_true",
                    help="Enable 8-bit quantisation.")
+    p.add_argument("--dtype", choices=["fp16", "bf16", "fp32"], default="bf16",
+                   help="Model weight dtype. bf16 is H100 native and recommended.")
+    p.add_argument("--flash-attn", action="store_true",
+                   help="Enable Flash Attention 2 (pip install flash-attn required).")
+    p.add_argument("--compile", action="store_true",
+                   help=(
+                       "torch.compile the model (mode=reduce-overhead). "
+                       "Adds ~1–2 min warmup; pays off over 5+ behaviors."
+                   ))
+    p.add_argument("--gen-batch-size", type=int, default=50,
+                   help="Max prompts per generation call (default 50, lower if OOM).")
     p.add_argument("--force-rerun", action="store_true",
                    help="Ignore cached results and rerun all conditions.")
     return p.parse_args()
@@ -851,6 +993,14 @@ def main() -> None:
         list(WSS_MODEL_KEYS) if args.model == "all" else [args.model]
     )
     behaviors: List[str] = BEHAVIORS if args.behavior == "all" else [args.behavior]
+
+    torch_dtype: torch.dtype = _DTYPE_MAP[args.dtype]
+    attn_impl: Optional[str] = "flash_attention_2" if args.flash_attn else None
+
+    log.info(
+        "Run config: dtype=%s  flash_attn=%s  compile=%s  gen_batch_size=%d",
+        args.dtype, args.flash_attn, args.compile, args.gen_batch_size,
+    )
 
     all_summaries: List[pd.DataFrame] = []
 
@@ -868,12 +1018,26 @@ def main() -> None:
             device=args.device,
             load_in_4bit=args.load_in_4bit,
             load_in_8bit=args.load_in_8bit,
+            torch_dtype=torch_dtype,
+            attn_implementation=attn_impl,
+        )
+
+        if args.compile:
+            log.info("torch.compile: compiling model (mode=reduce-overhead)...")
+            baker._model = torch.compile(baker._model, mode="reduce-overhead")
+            log.info("torch.compile: done. First generation call will be slow (warmup).")
+
+        # Pre-compute target layer names once per model — same logic as Baker.fit().
+        # Passing this in avoids recomputing inside every _evaluate_behavior call.
+        target_layers: List[str] = _target_layer_names(baker)
+        log.info(
+            "Target layers: %d layers  [%s … %s]",
+            len(target_layers), target_layers[0], target_layers[-1],
         )
 
         # Load K values from experiment 01 norm profiles once per model.
-        # These are used for pca_k_calibrated to ensure consistency with
-        # the K values reported in paper Figures 1–3 (computed on 50 general
-        # calibration prompts, not on behavioral train pairs).
+        # These keep K consistent with the values in paper Figures 1–3
+        # (computed on 50 general calibration prompts, not behavioral pairs).
         precomputed_k = _load_precomputed_k_values(model_key)
 
         for behavior in tqdm(behaviors, desc=cfg.label, unit="behavior"):
@@ -885,7 +1049,10 @@ def main() -> None:
                 summary = pd.read_csv(summary_path)
             else:
                 log.info("  Evaluating %s / %s", cfg.label, behavior)
-                summary = _evaluate_behavior(baker, behavior, out_dir, precomputed_k)
+                summary = _evaluate_behavior(
+                    baker, behavior, out_dir,
+                    precomputed_k, target_layers, args.gen_batch_size,
+                )
 
             summary["model"]     = cfg.label
             summary["model_key"] = model_key

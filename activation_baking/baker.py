@@ -80,6 +80,12 @@ class Baker:
         Enable bitsandbytes INT8 quantisation.
     load_in_4bit:
         Enable bitsandbytes NF4 quantisation.
+    torch_dtype:
+        Override model weight dtype (e.g. ``torch.bfloat16`` for H100).
+        Defaults to ``float16`` on GPU and ``float32`` on CPU.
+    attn_implementation:
+        Attention backend passed to ``from_pretrained``
+        (e.g. ``"flash_attention_2"`` for Flash Attention 2).
     """
 
     def __init__(
@@ -88,6 +94,8 @@ class Baker:
         device: str = "auto",
         load_in_8bit: bool = False,
         load_in_4bit: bool = False,
+        torch_dtype: Optional[torch.dtype] = None,
+        attn_implementation: Optional[str] = None,
     ) -> None:
         if not isinstance(model_id, str) or not model_id.strip():
             raise ValueError(f"model_id must be a non-empty string, got: {model_id!r}")
@@ -106,14 +114,17 @@ class Baker:
         if self._tokenizer.pad_token_id is None:
             self._tokenizer.pad_token_id = self._tokenizer.eos_token_id
 
+        _default_dtype = torch.float16 if self._device.type != "cpu" else torch.float32
         load_kwargs: Dict[str, Any] = {
-            "torch_dtype": torch.float16 if self._device.type != "cpu" else torch.float32,
+            "torch_dtype": torch_dtype if torch_dtype is not None else _default_dtype,
             "device_map": str(self._device),
         }
         if load_in_8bit:
             load_kwargs["load_in_8bit"] = True
         elif load_in_4bit:
             load_kwargs["load_in_4bit"] = True
+        if attn_implementation is not None:
+            load_kwargs["attn_implementation"] = attn_implementation
 
         self._model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
             model_id, **load_kwargs
