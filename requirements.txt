@@ -1,40 +1,47 @@
 # -----------------------------------------------------------------------
-# activation-baking — pinned requirements for Lambda Labs A100
-# CUDA 12.1, Python 3.10/3.11
+# norms-k-calibration — requirements
+# Tested on: H100/A100, CUDA 12.1–12.4, Python 3.10/3.11
+#
+# torch/torchvision are installed separately in setup.sh with the
+# correct CUDA index URL; pip will satisfy the >=2.4 constraint here
+# without re-downloading if already present.
 # -----------------------------------------------------------------------
 
 # Core deep-learning stack
-torch==2.3.0
-torchvision==0.18.0
+torch>=2.4.0
+torchvision>=0.19.0
 
-# HuggingFace ecosystem
-transformers==4.44.0
-accelerate==0.33.0
-huggingface-hub==0.24.5
-safetensors==0.4.3
-tokenizers==0.19.1
-sentencepiece==0.2.0
-protobuf==4.25.4
+# HuggingFace ecosystem (transformers >=4.47 supports huggingface-hub >=1.0)
+transformers>=4.47.0
+accelerate>=0.34.0
+huggingface-hub>=1.0.0
+safetensors>=0.4.3
+tokenizers>=0.20.0
+sentencepiece>=0.2.0
+protobuf>=4.25.4
 
-# Quantisation (optional but common on A100)
-bitsandbytes==0.43.3
+# Quantisation (4-bit / 8-bit; optional)
+bitsandbytes>=0.43.3
+
+# Datasets (benchmark loading in experiment 10)
+datasets>=2.20.0
 
 # Numerical / scientific
-numpy==1.26.4
-scipy==1.13.1
-scikit-learn==1.5.1
-pandas==2.2.2
+numpy>=1.26.4
+scipy>=1.13.1
+scikit-learn>=1.5.1
+pandas>=2.2.2
 
 # Progress bars
-tqdm==4.66.4
+tqdm>=4.66.4
 
 # Configuration
-pyyaml==6.0.2
+pyyaml>=6.0.2
 
 # Tensor manipulation utilities
-einops==0.8.0
+einops>=0.8.0
 
-# Visualisation (analysis notebooks / paper figures)
-matplotlib==3.9.1
-seaborn==0.13.2
+# Visualisation
+matplotlib>=3.9.1
+seaborn>=0.13.2
 Pillow>=9.1.0
