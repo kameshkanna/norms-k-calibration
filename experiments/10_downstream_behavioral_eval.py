@@ -440,7 +440,7 @@ def _alpacaeval_download(cache: Path) -> None:
         from huggingface_hub import hf_hub_download  # type: ignore[import-untyped]
         local_path = hf_hub_download(
             repo_id="tatsu-lab/alpaca_eval",
-            filename="alpaca_eval/alpaca_eval.json",
+            filename="alpaca_eval.json",
             repo_type="dataset",
         )
         with open(local_path, encoding="utf-8") as fh:
@@ -460,12 +460,7 @@ def _alpacaeval_download(cache: Path) -> None:
     _HF_ALPACA_URLS = [
         (
             "https://huggingface.co/datasets/tatsu-lab/alpaca_eval"
-            "/resolve/main/alpaca_eval/alpaca_eval.json"
-        ),
-        # mirror: raw GitHub file from the alpaca_eval source repo
-        (
-            "https://raw.githubusercontent.com/tatsu-lab/alpaca_eval"
-            "/main/src/alpaca_eval/evaluators_configs/alpaca_eval/alpaca_eval.json"
+            "/resolve/main/alpaca_eval.json"
         ),
     ]
     for url in _HF_ALPACA_URLS:
