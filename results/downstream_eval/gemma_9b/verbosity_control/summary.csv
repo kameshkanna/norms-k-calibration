@@ -1,6 +1,0 @@
-condition,metric_value,n,delta_vs_baseline,delta_vs_pca_uncal
-none,124.92,50,0.0,-6.920000000000002
-raw_addition,129.72,50,4.799999999999997,-2.1200000000000045
-pca_uncalibrated,131.84,50,6.920000000000002,0.0
-pca_k_calibrated,139.44,50,14.519999999999996,7.599999999999994
-pca_k_calibrated_reversed,104.92,50,-20.0,-26.92

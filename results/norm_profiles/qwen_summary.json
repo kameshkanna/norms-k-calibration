@@ -1,0 +1,19 @@
+{
+  "model_key": "qwen",
+  "hf_id": "Qwen/Qwen2.5-7B-Instruct",
+  "architecture": "qwen2",
+  "hidden_size": 3584,
+  "num_layers": 28,
+  "n_prompts": 50,
+  "seed": 42,
+  "global_mean_norm": 113.09322592190334,
+  "global_std_norm": 118.82741860813998,
+  "min_mean_norm": 11.322012901306152,
+  "max_mean_norm": 447.3507385253906,
+  "peak_layer_idx": 27,
+  "peak_layer_name": "model.layers.27",
+  "global_mean_k": 1.8890897507356417,
+  "global_std_k": 1.9848727169036888,
+  "elapsed_seconds": 5.73,
+  "gpu_mem_gb": 14.684
+}

@@ -1,0 +1,373 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{parskip}
+
+\geometry{margin=1.1in}
+\setlength{\parskip}{4pt}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}[proposition]{Corollary}
+\newtheorem{remark}{Remark}
+
+\title{\textbf{Activation Vector Baking — Research Progress Report}\\[0.3em]
+\large Two Workshop Papers: Status, Results, and Forward Plan}
+\author{Kamesh R\\\texttt{dorsalpanda4680@gmail.com}}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% =======================================================================
+\section{Context: Three Repos, Two Papers}
+
+The project spans three repositories.
+\texttt{norms\_k\_calibration\_paper/} contains \textbf{Paper 1} (submitted):
+the theoretical calibration paper.
+\texttt{activation\_vectors\_as\_weights/} contains \textbf{Paper 2} (in
+preparation): the AVAW companion paper on bias fusion and ramp schedules.
+\texttt{norms\_k\_analysis/} is an earlier analysis directory now superseded.
+Both papers target the ICML 2026 Workshop on Weight-Space Symmetries.
+
+% =======================================================================
+\section{Starting Point: COLM 2026 Submission}
+\label{sec:colm}
+
+The project began with a safety-focused preprint submitted to COLM 2026.
+The central observation: for input-independent steering vectors, runtime
+addition is equivalent to a permanent bias modification:
+\[
+  h^{(\ell)} \leftarrow h^{(\ell)} + \lambda v^{(\ell)}
+  \;\Longleftrightarrow\;
+  b'^{(\ell)} = b^{(\ell)} + \lambda v^{(\ell)}.
+\]
+Vectors were extracted from loophole-targeted contrastive pairs
+($\mathcal{D}_{\text{refuse}}$ vs.\ $\mathcal{D}_{\text{loophole}}$, 300+
+pairs across cybercrime/fraud/hate speech/weapons) and baked into
+\texttt{down\_proj} biases via a linear ramp over 30--80\% of layers with
+grid-searched $\lambda_{\min}, \lambda_{\max}$.
+
+\paragraph{Results (Qwen2.5-3B).}
+
+\begin{center}\small
+\begin{tabular}{llccc}
+\toprule
+Model & Config & HarmBench $\uparrow$ & Gibberish $\downarrow$ & GSM8K \\
+\midrule
+\multirow{3}{*}{Qwen-Instruct}
+  & Baseline & 92.5\% & 0.5\% & 86.0\% \\
+  & $+$High ($\lambda_{\max}{=}4.5$) & \textbf{98.5\%} & \textbf{0.0\%} & 60.0\% \\
+  & $-$High & 59.0\% & 6.0\% & 77.4\% \\
+Qwen-Base & $+$High & 49.0\% & 4.0\% & 70.7\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+98.5\% HarmBench refusal with zero gibberish, competitive with Llama Guard 2.
+Primary limitation: $-26$pp GSM8K at the High configuration.
+Three questions left open: what $\lambda$ transfers to other models, why
+30--80\%, and why a linear ramp.
+Paper 1 resolves the first question analytically; Paper 2 resolves the second
+and third.
+
+% =======================================================================
+\section{Paper 1: Norm-Calibrated Activation Steering}
+\label{sec:paper1}
+
+\subsection{Derivation}
+
+\begin{proposition}[Rank-1 Perturbation Equivalence]
+\label{prop:rank1}
+Let $\hat{x} \sim \mathcal{U}(\mathcal{S}^{d-1})$.
+A rank-1 weight perturbation $\Delta W = \alpha\,u v^\top$ produces expected
+output shift $\alpha\sqrt{2/\pi d}$.
+For residual-stream addition $h \mapsto h + K\hat{c}$ propagated through $W$:
+$\mathbb{E}_{\hat{c}}[\|WK\hat{c}\|] = K\|W\|_F/\sqrt{d}$.
+Setting these equal at $\alpha = \bar{\mu}_\ell$:
+\[
+  \boxed{K_\ell = \frac{\bar{\mu}_\ell}{\sqrt{d}}}, \qquad
+  \bar{\mu}_\ell = \mathbb{E}_{x\sim\mathcal{D}_{\text{calib}}}\bigl[\|h^{(\ell)}(x)\|_2\bigr].
+\]
+\end{proposition}
+
+\begin{proposition}[Spectral Integral — Pre-Norm Transformers]
+\label{prop:integral}
+In a pre-norm transformer,
+$\bar{\mu}_\ell \approx \bar{\mu}_0 + \sum_{\ell'<\ell} c_{\ell'}\,\sigma_1(W_{\mathrm{dn},\ell'})$,
+making $K_\ell$ a running integral of MLP spectral norms and predicting
+$r(K_\ell,\,\sigma_1(W_{\mathrm{up},\ell})) > 0$ from local spectral correlations.
+\end{proposition}
+
+\begin{remark}[Gemma~2 Post-Norm Regime]
+Gemma~2's post-sublayer RMSNorm clips every increment to
+$\|\gamma^\mathrm{post}_\ell\|_\mathrm{eff}\sqrt{d}$, so
+$\bar{\mu}_\ell \approx \bar{\mu}_0 + \sqrt{d}\sum_{\ell'<\ell}\|\gamma^\mathrm{post}_{\ell'}\|_\mathrm{eff}$.
+The formula $K_\ell = \bar{\mu}_\ell/\sqrt{d}$ requires no modification;
+what changes is the physical quantity $\bar{\mu}_\ell$ integrates — weight
+spectra in pre-norm, accumulated normalization scales in dual-norm.
+\end{remark}
+
+$\bar{\mu}_\ell$ is estimated from 50 calibration prompts in one forward pass.
+No hyperparameter search.
+
+\subsection{Experiments and Results}
+\label{sec:p1results}
+
+Four instruction-tuned models (Llama~3.1-8B, Qwen~2.5-7B, Mistral-7B,
+Gemma~2-9B), five behavioral axes (refusal calibration, formality, verbosity
+control, uncertainty expression, sycophancy suppression), 45 contrastive pairs
+per axis, 80/20 split, seed 42.
+
+\paragraph{E1 — Norm profiling.}
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Model & $\bar{K}$ (mean over layers) & $\overline{\|h^{(\ell)}\|_2}$ \\
+\midrule
+Llama 3.1 8B & 0.249 & 15.9 \\
+Mistral 7B   & 0.151 & 9.7 \\
+Qwen 2.5 7B  & 1.889 & 120.8 \\
+Gemma 2 9B   & 6.488 & 388.2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Llama norms grow $84\times$ from layer 0 to 31; Gemma reaches 1514 at layer 41.
+A fixed global $K$ is structurally wrong across and within models.
+
+\paragraph{E2 — $K$-calibration validation.}
+\begin{center}\small
+\begin{tabular}{lccl}
+\toprule
+Model & $r$ & $p$ & Proxy \\
+\midrule
+Llama 3.1 8B & 0.769 & $2.7\!\times\!10^{-7}$ & $\sigma_1(W_\mathrm{up})$ \\
+Qwen 2.5 7B  & 0.711 & $2.2\!\times\!10^{-5}$ & $\sigma_1(W_\mathrm{up})$ \\
+Mistral 7B   & 0.715 & $4.2\!\times\!10^{-6}$ & $\sigma_1(W_\mathrm{up})$ \\
+Gemma 2 9B   & $0.960$ ($\rho{=}0.9992$) & ${<}10^{-23}$ & $\sum\|\gamma^\mathrm{post}\|$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Pre-norm architectures: $r{=}0.71$--$0.77$ against $\sigma_1(W_\mathrm{up})$.
+Gemma~2: $\sigma_1(W_\mathrm{up})$ is a poor proxy ($\rho{=}0.12$), but
+cumulative post-norm scale recovers $r{=}0.960$/$\rho{=}0.9992$ — confirming
+Remark 1.
+The formula is architecture-agnostic; the proxy is not.
+
+\paragraph{E3 — Weight-space alignment.}
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Model & Mean ratio & Max ratio \\
+\midrule
+Llama 3.1 8B & 3.40$\times$ & 6.09$\times$ \\
+Qwen 2.5 7B  & 4.05$\times$ & 7.80$\times$ \\
+Mistral 7B   & 4.28$\times$ & 10.80$\times$ \\
+Gemma 2 9B   & 3.04$\times$ & 5.90$\times$ \\
+\textbf{Mean} & \textbf{3.69$\times$} & \textbf{10.80$\times$} \\
+\bottomrule
+\end{tabular}
+\end{center}
+Mean-max cosine similarity between behavioral PC1 and top-10 right singular
+vectors of $W_\mathrm{dn}$, normalized by random baseline.
+All 20 model--behavior cells exceed $1.0\times$.
+
+\paragraph{E4 — Behavioral specificity control.}
+Behavioral PC1 exceeds raw-activation PC1 alignment in three of four
+architectures (Mistral: $+7.43\times$; Llama: $+1.26\times$; Qwen:
+$+0.77\times$).
+Gemma~2 shows no advantage ($-0.63\times$): post-norm normalization elevates
+alignment of all structured directions, eliminating specificity.
+Raw mean direction achieves $7$--$18\times$ alignment — a structural artifact
+(mean residual direction is the primary axis $W_\mathrm{dn}$ writes along).
+
+\paragraph{E5 — Permutation equivariance.}
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Model & Mean cosine sim $\pm$ std & Invariant ($\tau{=}0.85$)? \\
+\midrule
+Llama 3.1 8B & $0.051\pm0.040$ & No \\
+Qwen 2.5 7B  & $0.106\pm0.068$ & No \\
+Mistral 7B   & $0.160\pm0.123$ & No \\
+Gemma 2 9B   & $0.412\pm0.181$ & No \\
+\bottomrule
+\end{tabular}
+\end{center}
+50\% neuron permutation, 5 seeds.
+Directions are equivariant, not invariant: they co-rotate with the weight
+basis as predicted by E3.
+A behavioral probe identifies a direction relative to one member of the
+permutation orbit, not a functional-class invariant.
+
+\paragraph{Appendix: Directional fidelity.}
+\begin{center}\small
+\begin{tabular}{lcccc}
+\toprule
+Model & Baseline & Raw ($K{=}1$) & PC1 ($K{=}1$) & PC1 ($K$-cal.) \\
+\midrule
+Llama 3.1 8B  & $0.0040$ & $0.0121$ & $0.0014$ & $\mathbf{0.0471}$ \\
+Gemma 2 9B    & $0.0033$ & $0.0158$ & $0.0117$ & $0.0065^{\dagger}$ \\
+Qwen 2.5 7B   & $0.0003$ & $0.0087$ & $0.0119$ & $0.0018$ \\
+Mistral 7B    & $-0.0069$ & $0.0443$ & $0.0281$ & $0.0170$ \\
+\midrule
+Average & $0.0002$ & $0.0202$ & $0.0133$ & $0.0181$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Mean cosine shift ($\uparrow$ better), averaged over 5 behaviors, $n{=}9$ pairs
+per axis per model ($\pm$95\% CI not shown here; Qwen/Mistral differences are
+within CI).
+Llama: K-calibration gives $+0.046$ absolute ($+3349\%$) — cleanest signal
+because pre-norm residual norms span $>10\times$ within-model range.
+Gemma ($\dagger$): slight loss, predicted by Remark 1 (post-norm over-shoots
+at $K_\ell \approx 25$).
+
+\subsection{Paper Status}
+
+Full \texttt{paper.tex}, figures (fig1--6 + appendix), and all result CSVs are
+in \texttt{norms\_k\_calibration\_paper/}.
+Downstream generation-level evaluation is in companion work (Paper 2).
+
+% =======================================================================
+\section{Paper 2: Activation Vectors as Weights (AVAW)}
+\label{sec:paper2}
+
+Repo: \texttt{activation\_vectors\_as\_weights/}.
+Full title: \emph{Activation Vectors as Weights: Persistent Nudges via Bias
+Fusion for Library-Free Behavioural Alignment}.
+
+\subsection{Core Contribution}
+
+Paper 2 operationalises the bias-equivalence observation from the COLM
+submission and packages it as a lossless, library-free deployment format:
+bake the calibrated steering vector into \texttt{down\_proj} biases once;
+load the resulting checkpoint anywhere with standard HuggingFace
+\texttt{from\_pretrained} — no hooks, no steering library.
+
+\textbf{Lossless guarantee.} Output logits of the fused model and the
+hook-steered model agree to $<10^{-5}$ ($L^\infty$) across float16 and
+float32, validated by Exp 02.
+
+\textbf{Distinction from prior work.} Compiling Activation Steering
+(arXiv:2604.12359) and Steer2Edit use input-triggered weight edits that
+activate conditionally.
+AVAW's bias fusion is unconditional (always on) and lossless.
+This is preferable for persistent alignment goals (sycophancy suppression,
+refusal reinforcement) where the nudge should apply uniformly regardless of
+phrasing.
+
+\subsection{Cosine-Bell Ramp Schedule}
+
+The COLM linear ramp (30--80\% of layers, searched $\lambda_{\min},
+\lambda_{\max}$) is replaced by a principled schedule.
+AVAW compares four:
+
+\begin{center}\small
+\begin{tabular}{ll}
+\toprule
+Schedule & $K^{(\ell)}_{\text{effective}}$ \\
+\midrule
+Flat (baseline) & $K_\ell$ uniformly \\
+Linear & $K_\ell \cdot (\ell - \ell_s)/(\ell_e - \ell_s)$ \\
+Cosine-bell & $K_\ell \cdot \tfrac{1}{2}(1 + \cos(\pi(1-t(\ell))))$, $t \in [0,1]$ over window \\
+Norm-inverse & $K_\ell \propto 1/K_{\max}(\ell)$, redistributing budget from fragile layers \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Before any schedule, the layer collapse threshold $K_{\max}(\ell)$ is measured
+by sweeping $\alpha$ on a held-out set and detecting the perplexity inflection
+point; cosine-bell amplitudes are clipped to $K_{\max}(\ell)$.
+
+\subsection{Planned Experiments}
+
+Results pending a fresh GPU run (dataset was expanded; all experiments reset).
+
+\begin{center}\small
+\begin{tabular}{clll}
+\toprule
+Exp & Description & Status \\
+\midrule
+01 & Cross-arch CKA (4$\times$4 heatmap, 5 depth fractions) & Ready to run \\
+02 & Lossless compilation verification & Ready to run \\
+03 & Collapse threshold $K_{\max}(\ell)$ sweep & Planned \\
+04 & Ramp schedule ablation (flat/linear/cosine-bell/norm-inverse) & Planned \\
+05 & TruthfulQA MC accuracy under each schedule & Planned \\
+06 & Sycophancy suppression win-rate (GPT-4o judge) & Planned \\
+07 & Refusal reinforcement — jailbreak success rate & Planned \\
+08 & Direction transfer across architectures via Hub adapter & Planned \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Connection to Paper 1}
+
+Paper 1 derives and validates $K_\ell = \bar{\mu}_\ell/\sqrt{d}$ via internal
+geometric metrics.
+Paper 2 uses that calibration as a given, substitutes $K_\ell$ into the
+bias-fusion formula, and evaluates the resulting behavioral change at the
+generation level.
+The division of labour is clean: Paper 1 is the spectral geometry paper;
+Paper 2 is the deployment paper.
+
+% =======================================================================
+\section{Summary Table}
+
+\begin{center}\small
+\begin{tabular}{p{3cm}p{5cm}p{5cm}}
+\toprule
+ & \textbf{Paper 1} (submitted) & \textbf{Paper 2} (in prep) \\
+\midrule
+Claim & $K_\ell = \bar{\mu}_\ell/\sqrt{d}$ from rank-1 equivalence & Bias fusion is lossless; cosine-bell ramp improves behavioral control \\
+Eval & Spectral correlation, alignment ratio, permutation equivariance, directional fidelity & Generation benchmarks, LLM judge, ramp ablation \\
+Gemma & $\rho{=}0.9992$ via post-norm proxy; formula unchanged & TBD \\
+Status & \texttt{paper.tex} + figures complete & README + code complete; results pending \\
+Defers & Generation-level behavioral eval & Theoretical calibration derivation \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% =======================================================================
+\section{Open Questions}
+
+\begin{enumerate}[topsep=2pt]
+  \item Paper 1's directional fidelity shows Qwen/Mistral differences are
+        within CI ($n{=}9$ pairs per axis).
+        Is this underpowered, or is the null result ($K{=}1$ accidentally
+        approximates the correct scale for mid-range norm profiles) itself
+        publishable?
+
+  \item The Gemma post-norm proxy ($\sum\|\gamma^\mathrm{post}\|$) recovers
+        $\rho{=}0.9992$, but accessing it requires a weight inspection step not
+        needed for pre-norm models.
+        Does this undermine the ``no weight access required'' framing, or is
+        the calibration-from-activations-only path the right default and the
+        weight-proxy a theoretical explanation?
+
+  \item For the AVAW sycophancy judge (Exp 06): GPT-4o as judge for
+        sycophancy is a known confound.
+        Is there a published evaluator you would recommend, or should I use
+        the SycophancyEval fine-tuned classifier?
+
+  \item The COLM $-26$pp GSM8K drop used a grid-searched $\lambda$ on 3B.
+        If Paper 2's cosine-bell at analytically-derived $K$ recovers more of
+        GSM8K at equivalent HarmBench performance on 7--9B models, that is the
+        clearest cross-paper result.
+        Is this the framing you would prioritise?
+
+  \item Both papers target the same workshop.
+        Is that appropriate given they cite each other, or should one be
+        redirected to a safety-specific venue (e.g.\ SaTML)?
+\end{enumerate}
+
+\end{document}

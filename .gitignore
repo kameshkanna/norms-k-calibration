@@ -17,6 +17,12 @@ build/
 logs/
 results/logs/
 
+# Per-prompt results contain full model responses — large and regeneratable
+results/downstream_eval/**/per_prompt_results.csv
+
+# Benchmark cache — re-downloadable
+data/benchmark_cache/
+
 # AVAW is a separate project — nothing from it belongs here
 avaw/results/
 avaw/experiments/

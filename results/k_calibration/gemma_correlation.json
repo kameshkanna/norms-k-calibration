@@ -1,0 +1,27 @@
+{
+  "model_key": "gemma",
+  "hf_id": "google/gemma-2-9b-it",
+  "architecture": "gemma2",
+  "hidden_size": 3584,
+  "n_layers": 42,
+  "weight_types_evaluated": [
+    "down_proj",
+    "up_proj",
+    "o_proj"
+  ],
+  "pearson_r_down_proj": -0.7209904649688026,
+  "spearman_r_down_proj": -0.880722793938903,
+  "pearson_p_down_proj": 7.229673148652234e-08,
+  "spearman_p_down_proj": 1.4725107018527848e-14,
+  "n_layers_used_down_proj": 42,
+  "pearson_r_up_proj": 0.4213845690355535,
+  "spearman_r_up_proj": 0.12308564946114577,
+  "pearson_p_up_proj": 0.005449463369953722,
+  "spearman_p_up_proj": 0.4374107939182338,
+  "n_layers_used_up_proj": 42,
+  "pearson_r_o_proj": 0.3812590269384983,
+  "spearman_r_o_proj": 0.4911271371849931,
+  "pearson_p_o_proj": 0.012732426765063594,
+  "spearman_p_o_proj": 0.000958004124503984,
+  "n_layers_used_o_proj": 42
+}
