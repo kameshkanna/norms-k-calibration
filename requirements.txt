@@ -23,9 +23,6 @@ protobuf>=4.25.4
 # Quantisation (4-bit / 8-bit; optional)
 bitsandbytes>=0.43.3
 
-# Datasets (benchmark loading in experiment 10)
-datasets>=2.20.0
-
 # Numerical / scientific
 numpy>=1.26.4
 scipy>=1.13.1

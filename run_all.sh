@@ -2,8 +2,8 @@
 # run_all.sh — Master runner for the full K-calibration experiment suite.
 #
 # Usage:
-#   bash run_all.sh                    # full run, all 16 models
-#   bash run_all.sh --wss-only         # WSS submission set (4 mid-size models)
+#   bash run_all.sh                    # full run, all models
+#   bash run_all.sh --paper-models     # paper model set (4 mid-size models)
 #   bash run_all.sh --dev              # fast dev set (5 small models)
 #   bash run_all.sh --tier mid         # one size tier: small | mid | large
 #   bash run_all.sh --model llama_8b   # single model
@@ -42,7 +42,7 @@ DEVICE="cuda"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --wss-only)         MODEL_ARG="wss";   shift ;;
+        --paper-models)     MODEL_ARG="wss";   shift ;;
         --dev)              MODEL_ARG="dev";   shift ;;
         --tier)             MODEL_ARG="tier:$2"; shift 2 ;;
         --model)            MODEL_ARG="$2";    shift 2 ;;
@@ -232,6 +232,5 @@ log "  results/k_calibration/          — per-layer K values, spectral correlat
 log "  results/weight_alignment_v2/    — alignment ratios, bootstrap CIs"
 log "  results/permutation_invariance_v2/ — permutation resilience, orbit probe"
 log "  results/k_sensitivity/          — κ sensitivity curves"
-log "  results/generation_quality/     — judge scores, method comparison"
 log "  results/partial_correlation/    — depth-controlled spectral correlations"
 log "  figures/                        — all PDFs ready for LaTeX inclusion"

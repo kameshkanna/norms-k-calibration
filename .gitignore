@@ -1,29 +1,66 @@
+# ── Python ──────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
-.env
+*.pyd
 *.egg-info/
 dist/
 build/
-.DS_Store
-*.pt
-*.pkl
+.eggs/
 
-# Large model weights — never commit
+# ── Virtual environments ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── LaTeX build artifacts ────────────────────────────────────────────────────
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.idx
+*.ilg
+*.ind
+
+# ── Compiled paper PDFs (recompile from .tex) ────────────────────────────────
+*.pdf
+
+# ── Generated figures (regenerate from results/) ────────────────────────────
+figures/
+
+# ── Experiment outputs (regenerate by running experiments/) ─────────────────
+results/
+
+# ── Model weights and tensors ────────────────────────────────────────────────
 *.bin
 *.safetensors
+*.pt
+*.pkl
+*.ckpt
+*.pth
 
-# Logs (large, regeneratable)
-logs/
-results/logs/
-
-# Per-prompt results contain full model responses — large and regeneratable
-results/downstream_eval/**/per_prompt_results.csv
-
-# Benchmark cache — re-downloadable
+# ── HuggingFace / dataset caches ────────────────────────────────────────────
 data/benchmark_cache/
+data/model_cache/
+.cache/
 
-# AVAW is a separate project — nothing from it belongs here
-avaw/results/
-avaw/experiments/
-avaw/*.py
+# ── Test / IDE artefacts ─────────────────────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+*.env
+secrets.yaml

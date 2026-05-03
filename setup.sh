@@ -89,5 +89,4 @@ pip install --quiet -e . --no-deps
 # ------------------------------------------------------------------
 echo ""
 echo "[setup] Environment ready. Example run:"
-echo "   python experiments/10_downstream_behavioral_eval.py \\"
-echo "       --model llama_8b --behavior all --dtype bf16 --compile"
+echo "   python experiments/01_norm_profiling.py --model all --device cuda"
