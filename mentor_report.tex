@@ -29,15 +29,14 @@
 \newpage
 
 % =======================================================================
-\section{Context: Three Repos, Two Papers}
+\section{Context: Two Repos, Two Papers}
 
-The project spans three repositories.
+The project has two repositories.
 \texttt{norms\_k\_calibration\_paper/} contains \textbf{Paper 1} (submitted):
-the theoretical calibration paper.
+the theoretical calibration paper, with all valid experiment results consolidated here.
 \texttt{activation\_vectors\_as\_weights/} contains \textbf{Paper 2} (in
 preparation): the AVAW companion paper on bias fusion and ramp schedules.
-\texttt{norms\_k\_analysis/} is an earlier analysis directory now superseded.
-Both papers target the ICML 2026 Workshop on Weight-Space Symmetries.
+Both target the ICML 2026 Workshop on Weight-Space Symmetries.
 
 % =======================================================================
 \section{Starting Point: COLM 2026 Submission}
@@ -209,6 +208,47 @@ basis as predicted by E3.
 A behavioral probe identifies a direction relative to one member of the
 permutation orbit, not a functional-class invariant.
 
+\paragraph{E6 — Partial correlation (controlling for depth).}
+Both $K_\ell$ and $\sigma_1(W_\mathrm{up})$ grow monotonically with layer
+depth, raising the concern that E2's correlation is a depth confound.
+Partial correlation controlling for $\ell$ strengthens the result in all
+models:
+
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+Model & Full $r$ & Partial $r$ (depth-controlled) & $p$ (partial) \\
+\midrule
+Llama 3.1 8B & 0.769 & \textbf{0.901} & $4.8\!\times\!10^{-12}$ \\
+Qwen 2.5 7B  & 0.711 & \textbf{0.832} & $7.6\!\times\!10^{-8}$ \\
+Mistral 7B   & 0.715 & \textbf{0.780} & $2.3\!\times\!10^{-7}$ \\
+Gemma 2 9B   & 0.421 & \textbf{0.696} & $4.3\!\times\!10^{-7}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The depth-controlled partial correlation eliminates the confound and the
+relationship strengthens, confirming the spectral grounding of the formula
+is not an artifact of monotone depth trends.
+
+\paragraph{E7 — PCA component dominance.}
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+Model & PC1/PC2 ratio (mean) & Top-5 cumulative variance \\
+\midrule
+Llama 3.1 8B & 1.60 & 36.9\% \\
+Qwen 2.5 7B  & 1.86 & 43.0\% \\
+Gemma 2 9B   & 35.5 & 81.2\% \\
+Mistral 7B   & 62.5 & 86.6\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+Mistral and Gemma show extreme PC1 dominance (ratios of 62.5$\times$ and
+35.5$\times$), meaning behavioral signal is essentially rank-1 for these
+architectures.
+Llama and Qwen are more distributed, consistent with their lower E3 alignment
+ratios.
+
 \paragraph{Appendix: Directional fidelity.}
 \begin{center}\small
 \begin{tabular}{lcccc}
@@ -224,12 +264,13 @@ Average & $0.0002$ & $0.0202$ & $0.0133$ & $0.0181$ \\
 \bottomrule
 \end{tabular}
 \end{center}
-Mean cosine shift ($\uparrow$ better), averaged over 5 behaviors, $n{=}9$ pairs
-per axis per model ($\pm$95\% CI not shown here; Qwen/Mistral differences are
-within CI).
+Mean cosine shift ($\uparrow$ better), averaged over 5 behaviors.
+\textbf{Sample size caveat}: $n{=}9$ pairs per axis per model; Qwen and
+Mistral differences are within the $\pm$95\% CI and should be treated as
+inconclusive, not null results.
 Llama: K-calibration gives $+0.046$ absolute ($+3349\%$) — cleanest signal
 because pre-norm residual norms span $>10\times$ within-model range.
-Gemma ($\dagger$): slight loss, predicted by Remark 1 (post-norm over-shoots
+Gemma ($\dagger$): slight loss predicted by Remark 1 (post-norm over-shoots
 at $K_\ell \approx 25$).
 
 \subsection{Paper Status}
@@ -254,9 +295,10 @@ bake the calibrated steering vector into \texttt{down\_proj} biases once;
 load the resulting checkpoint anywhere with standard HuggingFace
 \texttt{from\_pretrained} — no hooks, no steering library.
 
-\textbf{Lossless guarantee.} Output logits of the fused model and the
-hook-steered model agree to $<10^{-5}$ ($L^\infty$) across float16 and
-float32, validated by Exp 02.
+\textbf{Lossless guarantee.} The bias-equivalence derivation is exact for
+input-independent $v$: $h + \lambda v = Wx + b + \lambda v = Wx + b'$.
+Exp 02 provides numerical confirmation ($L^\infty < 10^{-5}$ on logits across
+float16 and float32); that experiment is pending the GPU rerun.
 
 \textbf{Distinction from prior work.} Compiling Activation Steering
 (arXiv:2604.12359) and Steer2Edit use input-triggered weight edits that
