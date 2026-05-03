@@ -236,7 +236,7 @@ at $K_\ell \approx 25$).
 
 Full \texttt{paper.tex}, figures (fig1--6 + appendix), and all result CSVs are
 in \texttt{norms\_k\_calibration\_paper/}.
-Downstream generation-level evaluation is in companion work (Paper 2).
+Downstream generation-level evaluation is in companion work (Paper 2), pending clean rerun after a bug was found in the prior LLM-judge run.
 
 % =======================================================================
 \section{Paper 2: Activation Vectors as Weights (AVAW)}
@@ -289,9 +289,11 @@ Before any schedule, the layer collapse threshold $K_{\max}(\ell)$ is measured
 by sweeping $\alpha$ on a held-out set and detecting the perplexity inflection
 point; cosine-bell amplitudes are clipped to $K_{\max}(\ell)$.
 
-\subsection{Planned Experiments}
+\subsection{Experiments}
 
-Results pending a fresh GPU run (dataset was expanded; all experiments reset).
+A prior downstream evaluation run (LLM-as-judge, 50 prompts per
+behaviour) was found to have a bug and all results were discarded.
+All AVAW experiments are pending a clean rerun on the GPU server.
 
 \begin{center}\small
 \begin{tabular}{clll}
